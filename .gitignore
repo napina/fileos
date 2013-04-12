@@ -30,7 +30,7 @@
 *.idb
 *.manifest
 *.opensdf
+*.unsuccessfulbuild
 
 # Filter folders
-build/vc10
-build/vc11
+#build/vc11
