@@ -39,21 +39,21 @@ IN THE SOFTWARE.
 #   define FILEOS_ARCH32
 #endif
 
-#define fileos_tostring_impl(x)      #x
-#define fileos_tostring(x)           fileos_tostring_impl(x)
+#define fileos_tostring_impl(x)     #x
+#define fileos_tostring(x)          fileos_tostring_impl(x)
 
 #if defined(_MSC_VER)
-#   define fileos_lineinfo           __FILE__ "(" fileos_tostring(__LINE__) ")"
-#   define fileos_todo(msg)          __pragma(message(fileos_lineinfo ": TODO " msg))
+#   define fileos_lineinfo          __FILE__ "(" fileos_tostring(__LINE__) ")"
+#   define fileos_todo(msg)         __pragma(message(fileos_lineinfo ": TODO " msg))
 #elif defined(__GNUC__)
-#   define fileos_lineinfo           __FILE__ ":" fileos_tostring(__LINE__)
-#   define fileos_todo(msg)          __Pragma(message("TODO " msg))
-#   define __forceinline                inline __attribute__((always_inline))
-#   define __restrict                   __restrict__
+#   define fileos_lineinfo          __FILE__ ":" fileos_tostring(__LINE__)
+#   define fileos_todo(msg)         __Pragma(message("TODO " msg))
+#   define __forceinline            inline __attribute__((always_inline))
+#   define __restrict               __restrict__
 #else
-#   define fileos_lineinfo           __FILE__ ":" fileos_tostring(__LINE__)
+#   define fileos_lineinfo          __FILE__ ":" fileos_tostring(__LINE__)
 #   define fileos_todo(msg)
-#   define __forceinline                inline
+#   define __forceinline            inline
 #   define __restrict
 #endif
 
@@ -61,12 +61,8 @@ IN THE SOFTWARE.
 #define fileos_assert(Test)
 #endif
 
-#ifndef fileos_delete
-#define fileos_delete(Ptr)           delete (Ptr)
-#endif
-
 #ifndef fileos_cast
-#define fileos_cast(Type,Ptr)        static_cast<Type >(Ptr)
+#define fileos_cast(Type,Ptr)       static_cast<Type >(Ptr)
 #endif
 //----------------------------------------------------------------------------
 
