@@ -22,6 +22,8 @@
     <ClInclude Include="..\..\include\fileos\config.h" />
     <ClInclude Include="..\..\include\fileos\filein.h" />
     <ClInclude Include="..\..\include\fileos\fileout.h" />
+    <ClInclude Include="..\..\include\fileos\filesystem.h" />
+    <ClInclude Include="..\..\include\fileos\streamer.h" />
     <ClInclude Include="..\..\include\fileos\streamin.h" />
     <ClInclude Include="..\..\include\fileos\streamout.h" />
   </ItemGroup>
