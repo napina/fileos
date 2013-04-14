@@ -28,13 +28,13 @@ IN THE SOFTWARE.
 
 namespace {
 
-void convertPath(char* dst, size_t dstLength, wchar_t const* src, size_t srcLength)
+void convertPath(char* dst, int dstLength, wchar_t const* src, int srcLength)
 {
     int count = ::WideCharToMultiByte(
         CP_ACP,
         0,
         src,
-        srcLength / sizeof(WCHAR),
+        srcLength / sizeof(wchar_t),
         dst,
         dstLength,
         NULL,
@@ -172,13 +172,13 @@ StreamOut* FileSystem::openForWrite(char const* filename, bool append)
 bool FileSystem::fileExists(char const* filename) const
 {
     DWORD dwAttrib = ::GetFileAttributes(filename);
-    return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
 bool FileSystem::pathExists(char const* path) const
 {
     DWORD dwAttrib = ::GetFileAttributes(path);
-    return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
 bool FileSystem::createPath(char const* path)
@@ -199,7 +199,7 @@ bool FileSystem::deletePath(char const* path)
 uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path, recursive);
-    uint32_t id = m_watchList.insert(watch);
+    uint32_t id = (uint32_t)m_watchList.insert(watch);
     watch->m_id = id;
     return id;
 }
@@ -215,7 +215,7 @@ void FileSystem::unwatchFolder(uint32_t id)
 
 void FileSystem::waitForChanges(uint32_t timeoutMs)
 {
-    DWORD count = m_watchList.size();
+    DWORD count = (DWORD)m_watchList.size();
     HANDLE* handles = reinterpret_cast<HANDLE*>(alloca(sizeof(HANDLE) * count));
     size_t i = 0;
     for(WatchList::iterator it = m_watchList.begin(); it != m_watchList.end(); ++it)

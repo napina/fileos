@@ -72,9 +72,9 @@ FileOut* FileOut::open(char const* filename, bool append)
 {
     FILE* stdfile = nullptr;
     if(append)
-        stdfile = ::fopen(filename, "ab");
+        ::fopen_s(&stdfile, filename, "ab");
     else
-        stdfile = ::fopen(filename, "wb");
+        ::fopen_s(&stdfile, filename, "wb");
 
     if(stdfile != nullptr) {
         return new FileOut(stdfile);

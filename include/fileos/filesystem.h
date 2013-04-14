@@ -44,9 +44,10 @@ public:
     //-------------------------------------------------------------------------
 
     bool fileExists(char const* filename) const;
+    bool deleteFile(char const* filename);
+
     bool pathExists(char const* path) const;
     bool createPath(char const* path);
-    bool deleteFile(char const* filename);
     bool deletePath(char const* path);
     //-------------------------------------------------------------------------
 

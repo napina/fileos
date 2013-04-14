@@ -87,7 +87,8 @@ bool FileIn::canSeek() const
 
 FileIn* FileIn::open(char const* filename)
 {
-    FILE* stdfile = ::fopen(filename, "rb");
+    FILE* stdfile = nullptr;
+    ::fopen_s(&stdfile, filename, "rb");
     if(stdfile != nullptr) {
         return new FileIn(stdfile);
     }

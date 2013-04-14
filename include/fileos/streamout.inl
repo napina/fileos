@@ -29,7 +29,7 @@ namespace fileos {
 
 __forceinline void StreamOut::writeSizeString(char const* text, size_t size)
 {
-    write<uint32_t>(size);
+    write<uint32_t>((uint32_t)size);
     write((void*)text, size);
 }
 
