@@ -60,10 +60,6 @@ IN THE SOFTWARE.
 #ifndef fileos_assert
 #define fileos_assert(Test)
 #endif
-
-#ifndef fileos_cast
-#define fileos_cast(Type,Ptr)       static_cast<Type >(Ptr)
-#endif
 //----------------------------------------------------------------------------
 
 namespace fileos {

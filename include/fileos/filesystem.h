@@ -26,7 +26,8 @@ IN THE SOFTWARE.
 #define fileos_filesystem_h
 
 #include "fileos/config.h"
-#include "containos/ref.h"
+#include "containos/event.h"
+#include "containos/bitblock.h"
 
 namespace fileos {
 
@@ -40,18 +41,34 @@ public:
 
     StreamIn* openForRead(char const* filename);
     StreamOut* openForWrite(char const* filename, bool append);
+    //-------------------------------------------------------------------------
 
-    bool exists(char const* filename);
+    bool fileExists(char const* filename) const;
+    bool pathExists(char const* path) const;
+    bool createPath(char const* path);
+    bool deleteFile(char const* filename);
+    bool deletePath(char const* path);
+    //-------------------------------------------------------------------------
+
+    // TODO iteration functions
+    //-------------------------------------------------------------------------
 
     enum FileOperation {
         fileoperation_added,
         fileoperation_modified,
         fileoperation_deleted,
     };
-    typedef void (*FileModifiedCB)(char const* filename, FileOperation operation);
-    bool watchFolder(char const* path, FileModifiedCB callback);
+    typedef void (*FileModifiedCB)(uint32_t id, char const* filename, FileOperation operation);
+
+    uint32_t watchFolder(char const* path, FileModifiedCB callback, bool recursive);
+    void unwatchFolder(uint32_t id);
+    void waitForChanges(uint32_t timeoutMs);
+    //-------------------------------------------------------------------------
 
 protected:
+    struct WatchInfo;
+    typedef containos::BitBlock<WatchInfo*> WatchList;
+    WatchList m_watchList;
 };
 
 } // end of fileos

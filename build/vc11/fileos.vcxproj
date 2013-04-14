@@ -34,6 +34,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\filein.cpp" />
     <ClCompile Include="..\..\src\fileout.cpp" />
+    <ClCompile Include="..\..\src\filesystem_windows.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BD86B79D-AD72-66A0-3F06-3165E6AEAA52}</ProjectGuid>
