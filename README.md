@@ -8,12 +8,16 @@ Uses containos
 
 Features
 ========
-- File system
+- File system (currently Windows only)
+  - Create/delete files
+  - Create/delete directories
+  - Watch folder
 - File streams
 
 
 Todo
 ====
+- Refactor file stream to use platform specific code
 - Directory iterator
 - Memory streams
 - Streaming support
