@@ -1,12 +1,18 @@
 fileos
 ======
 
-Portable file io library for C++.
+Cross platform file io library for C++.
 
 Uses containos
 
 
-TODO
+Features
+========
+- File system
+- File streams
+
+
+Todo
 ====
 - Directory iterator
 - Memory streams
