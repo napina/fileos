@@ -23,15 +23,14 @@ IN THE SOFTWARE.
 =============================================================================*/
 //#include "stdafx.h"
 #include "fileos/fileout.h"
-#include <stdio.h>
+#include <windows.h>
 
 namespace fileos {
 
 FileOut::~FileOut()
 {
-    fileos_assert(m_handle != nullptr);
-    ::fflush(reinterpret_cast<FILE*>(m_handle));
-    ::fclose(reinterpret_cast<FILE*>(m_handle));
+    ::FlushFileBuffers(m_handle);
+    ::CloseHandle(m_handle);
 }
 
 FileOut::FileOut(void* handle)
@@ -40,14 +39,16 @@ FileOut::FileOut(void* handle)
     , m_position(0)
     , m_size(0)
 {
-    fileos_assert(m_handle != nullptr);
-    m_position = ::ftell(reinterpret_cast<FILE*>(m_handle));
+    LONG offsetHigh;
+    DWORD offsetLow = ::SetFilePointer(m_handle, 0, &offsetHigh, FILE_CURRENT);
+    m_position = offsetLow | (int64_t(offsetHigh) << 32);
     m_size = m_position;
 }
 
-size_t FileOut::write(void const* srcBuffer, size_t size)
+uint32_t FileOut::write(void const* srcBuffer, uint32_t size)
 {
-    size_t writeSize = ::fwrite(srcBuffer, 1, size, reinterpret_cast<FILE*>(m_handle));
+    DWORD writeSize = 0;
+    ::WriteFile(m_handle, srcBuffer, (DWORD)size, &writeSize, NULL);
     m_position += writeSize;
     m_size += writeSize;
     return writeSize;
@@ -55,31 +56,31 @@ size_t FileOut::write(void const* srcBuffer, size_t size)
 
 void FileOut::flush()
 {
-    ::fflush(reinterpret_cast<FILE*>(m_handle));
+    ::FlushFileBuffers(m_handle);
 }
 
-size_t FileOut::position() const
+uint64_t FileOut::position() const
 {
     return m_position;
 }
 
-size_t FileOut::size() const
+uint64_t FileOut::size() const
 {
     return m_size;
 }
 
 FileOut* FileOut::open(char const* filename, bool append)
 {
-    FILE* stdfile = nullptr;
-    if(append)
-        ::fopen_s(&stdfile, filename, "ab");
-    else
-        ::fopen_s(&stdfile, filename, "wb");
-
-    if(stdfile != nullptr) {
-        return new FileOut(stdfile);
+    DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
+    DWORD dwShareMode = FILE_SHARE_READ;
+    DWORD dwCreationDisposition = CREATE_ALWAYS;
+    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+    HANDLE handle = ::CreateFile(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    if(handle == INVALID_HANDLE_VALUE) {
+        DWORD error = ::GetLastError();
+        return nullptr;
     }
-    return nullptr;
+    return new FileOut(handle);
 }
 
 } // end of namespace

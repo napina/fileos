@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #define fileos_streamer_h
 
 #include "fileos/config.h"
+#include "fileos/streamin.h"
 
 namespace fileos {
 
@@ -33,6 +34,12 @@ class Streamer
 {
 public:
     ~Streamer();
+    Streamer();
+
+    typedef void (*Callback)(StreamIn& stream);
+    void requestFile(char const* filename, Callback callback);
+
+    void update();
 
 protected:
 };

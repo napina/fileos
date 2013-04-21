@@ -35,14 +35,14 @@ class StreamOut
 public:
     virtual ~StreamOut() {}
 
-    virtual size_t write(void const* srcBuffer, size_t size) = 0;
+    virtual uint32_t write(void const* srcBuffer, uint32_t size) = 0;
     virtual void flush() = 0;
 
-    virtual size_t position() const = 0;
-    virtual size_t size() const = 0;
+    virtual uint64_t position() const = 0;
+    virtual uint64_t size() const = 0;
 
     // write shorthands (default implementation uses write())
-    virtual void writeSizeString(char const* text, size_t size);
+    virtual void writeSizeString(char const* text, uint32_t size);
 
     template<typename T> void write(T const& vec);
 

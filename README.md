@@ -13,13 +13,14 @@ Features
   - Create/delete directories
   - Watch folder
 - File streams
+- Memory streams
 
 
 Todo
 ====
-- Refactor file stream to use platform specific code
+- Refactor file stream to fast paged read
+- Query file info
 - Directory iterator
-- Memory streams
 - Streaming support
 - File system for Linux and MacOS
 - File packs

@@ -27,9 +27,9 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
-inline size_t StreamIn::readLine(char* buffer, size_t bufferSize)
+inline uint32_t StreamIn::readLine(char* buffer, uint32_t bufferSize)
 {
-    size_t readCount = 0;
+    uint32_t readCount = 0;
     char* buf = (char*)buffer;
     char ch;
     while(!isEos() && (readCount < bufferSize)) {

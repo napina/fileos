@@ -41,16 +41,16 @@ public:
 
     virtual ~StreamIn() {}
 
-    virtual size_t read(void* destBuffer, size_t size) = 0;
-    virtual size_t seek(SeekFrom from, int offset) = 0;
+    virtual uint32_t read(void* destBuffer, uint32_t size) = 0;
+    virtual uint64_t seek(SeekFrom from, int64_t offset) = 0;
 
-    virtual size_t position() const = 0;
-    virtual size_t size() const = 0;
+    virtual uint64_t position() const = 0;
+    virtual uint64_t size() const = 0;
     virtual bool isEos() const = 0;
     virtual bool canSeek() const = 0;
 
     // read shorthands (default implementation uses read())
-    virtual size_t readLine(char* buffer, size_t bufferSize);
+    virtual uint32_t readLine(char* buffer, uint32_t bufferSize);
     //virtual void readSizeString(k::String& result);
 
     template<typename T> T read();

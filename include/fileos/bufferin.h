@@ -33,20 +33,20 @@ class BufferIn : public StreamIn
 {
 public:
     virtual ~BufferIn();
-    BufferIn(char* buffer, size_t size);
+    BufferIn(char* buffer, uint64_t size);
 
-    virtual size_t read(void* destBuffer, size_t size);
-    virtual size_t seek(SeekFrom from, int offset);
+    virtual uint32_t read(void* destBuffer, uint32_t size);
+    virtual uint64_t seek(SeekFrom from, int64_t offset);
 
-    virtual size_t position() const;
-    virtual size_t size() const;
+    virtual uint64_t position() const;
+    virtual uint64_t size() const;
     virtual bool isEos() const;
     virtual bool canSeek() const;
 
 protected:
     char* m_buffer;
-    size_t m_position;
-    size_t m_size;
+    uint64_t m_position;
+    uint64_t m_size;
 };
 
 } // end of fileos

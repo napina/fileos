@@ -23,15 +23,13 @@ IN THE SOFTWARE.
 =============================================================================*/
 //#include "stdafx.h"
 #include "fileos/filein.h"
-#include <stdio.h>
+#include <windows.h>
 
 namespace fileos {
 
 FileIn::~FileIn()
 {
-    fileos_assert(m_handle != nullptr);
-    ::fflush(reinterpret_cast<FILE*>(m_handle));
-    ::fclose(reinterpret_cast<FILE*>(m_handle));
+    ::CloseHandle(m_handle);
 }
 
 FileIn::FileIn(void* handle)
@@ -40,37 +38,39 @@ FileIn::FileIn(void* handle)
     , m_position(0)
     , m_size(0)
 {
-    fileos_assert(m_handle != nullptr);
-
-    ::fseek(reinterpret_cast<FILE*>(m_handle), 0, SEEK_END);
-    m_size = (int32_t)::ftell(reinterpret_cast<FILE*>(m_handle));
-    ::fseek(reinterpret_cast<FILE*>(m_handle), 0, SEEK_SET);
+    FILE_STANDARD_INFO info;
+    ::GetFileInformationByHandleEx(m_handle, FileStandardInfo, &info, sizeof(FILE_STANDARD_INFO));
+    m_size = info.EndOfFile.QuadPart;
 }
 
-size_t FileIn::read(void* destBuffer, size_t size)
+uint32_t FileIn::read(void* destBuffer, uint32_t size)
 {
-    size_t readSize = ::fread(destBuffer, 1, size, reinterpret_cast<FILE*>(m_handle));
+    DWORD readSize = 0;
+    ::ReadFile(m_handle, destBuffer, (DWORD)size, &readSize, NULL);
     m_position += readSize;
     return readSize;
 }
 
-size_t FileIn::seek(SeekFrom from, int count)
+uint64_t FileIn::seek(SeekFrom from, int64_t offset)
 {
+    LARGE_INTEGER loffset;
+    loffset.QuadPart = offset;
+    LARGE_INTEGER lposition;
     switch(from) {
-        case seek_from_start:   ::fseek(reinterpret_cast<FILE*>(m_handle), count, SEEK_SET);    break;
-        case seek_from_current: ::fseek(reinterpret_cast<FILE*>(m_handle), count, SEEK_CUR);    break;
-        case seek_from_end:     ::fseek(reinterpret_cast<FILE*>(m_handle), count, SEEK_END);    break;
+        case seek_from_start:   ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_BEGIN);      break;
+        case seek_from_current: ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_CURRENT);    break;
+        case seek_from_end:     ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_END);        break;
     }
-    m_position = ::ftell(reinterpret_cast<FILE*>(m_handle));
+    m_position = lposition.QuadPart;
     return m_position;
 }
 
-size_t FileIn::position() const
+uint64_t FileIn::position() const
 {
     return m_position;
 }
 
-size_t FileIn::size() const
+uint64_t FileIn::size() const
 {
     return m_size;
 }
@@ -87,12 +87,22 @@ bool FileIn::canSeek() const
 
 FileIn* FileIn::open(char const* filename)
 {
-    FILE* stdfile = nullptr;
-    ::fopen_s(&stdfile, filename, "rb");
-    if(stdfile != nullptr) {
-        return new FileIn(stdfile);
+    DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
+    DWORD dwShareMode = FILE_SHARE_READ;
+    DWORD dwCreationDisposition = OPEN_EXISTING;
+    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY | FILE_FLAG_NO_BUFFERING;
+    HANDLE handle = ::CreateFile(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    if(handle == INVALID_HANDLE_VALUE) {
+        DWORD error = ::GetLastError();
+        return nullptr;
     }
-    return nullptr;
+    return new FileIn(handle);
+}
+
+void foo(char const* filename)
+{
+    WIN32_FILE_ATTRIBUTE_DATA fileAttributes;
+    BOOL ok = ::GetFileAttributesEx(filename, GetFileExInfoStandard, &fileAttributes);
 }
 
 } // end of namespace

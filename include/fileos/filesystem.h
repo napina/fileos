@@ -28,6 +28,7 @@ IN THE SOFTWARE.
 #include "fileos/config.h"
 #include "containos/event.h"
 #include "containos/bitblock.h"
+#include "containos/list.h"
 
 namespace fileos {
 
@@ -52,6 +53,7 @@ public:
     //-------------------------------------------------------------------------
 
     // TODO iteration functions
+    void findFiles(char const* path, containos::List<char*>& foundFiles);
     //-------------------------------------------------------------------------
 
     enum FileOperation {

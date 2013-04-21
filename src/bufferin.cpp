@@ -31,7 +31,7 @@ BufferIn::~BufferIn()
 {
 }
 
-BufferIn::BufferIn(char* buffer, size_t size)
+BufferIn::BufferIn(char* buffer, uint64_t size)
     : StreamIn()
     , m_buffer(buffer)
     , m_position(0)
@@ -39,29 +39,29 @@ BufferIn::BufferIn(char* buffer, size_t size)
 {
 }
 
-size_t BufferIn::read(void* destBuffer, size_t size)
+uint32_t BufferIn::read(void* destBuffer, uint32_t size)
 {
     fileos_todo("add read check");
     ::memcpy(destBuffer, m_buffer, size);
     return size;
 }
 
-size_t BufferIn::seek(SeekFrom from, int count)
+uint64_t BufferIn::seek(SeekFrom from, int64_t offset)
 {
     switch(from) {
-        case seek_from_start:   m_position = (size_t)count;             break;
-        case seek_from_current: m_position += (size_t)count;            break;
-        case seek_from_end:     m_position = (size_t)(m_size - count);  break;
+        case seek_from_start:   m_position = uint64_t(offset);              break;
+        case seek_from_current: m_position = uint64_t(m_position - offset); break;
+        case seek_from_end:     m_position = uint64_t(m_size - offset);     break;
     }
     return m_position;
 }
 
-size_t BufferIn::position() const
+uint64_t BufferIn::position() const
 {
     return m_position;
 }
 
-size_t BufferIn::size() const
+uint64_t BufferIn::size() const
 {
     return m_size;
 }

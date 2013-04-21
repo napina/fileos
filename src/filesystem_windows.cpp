@@ -24,6 +24,7 @@ IN THE SOFTWARE.
 #include "fileos/filesystem.h"
 #include "fileos/fileout.h"
 #include "fileos/filein.h"
+#include "fileos/path.h"
 #include <windows.h>
 
 namespace {
@@ -194,6 +195,32 @@ bool FileSystem::deleteFile(char const* filename)
 bool FileSystem::deletePath(char const* path)
 {
     return ::RemoveDirectory(path) != FALSE;
+}
+
+void FileSystem::findFiles(char const* path, containos::List<char*>& foundFiles)
+{
+#if 0
+    WIN32_FIND_DATA findData;
+
+    Path searchString = path + "/*.*";
+
+    HANDLE handle = ::FindFirstFile(searchString.c_str(), &findData);
+    if(handle == INVALID_HANDLE_VALUE)
+        return;
+
+    do 
+    {
+        if(findData.cFileName[0] != '.')
+            continue;
+        if((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+            continue;
+
+        Path fullName = path + "/" + findData.cFileName;
+        foundFiles.insert(fullName.c_str());
+    } while(::FindNextFile(handle, &findData));
+
+    ::FindClose(handle);
+#endif
 }
 
 uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB callback, bool recursive)

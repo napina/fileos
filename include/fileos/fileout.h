@@ -34,11 +34,11 @@ class FileOut : public StreamOut
 public:
     virtual ~FileOut();
 
-    virtual size_t write(void const* srcBuffer, size_t size);
+    virtual uint32_t write(void const* srcBuffer, uint32_t size);
     virtual void flush();
 
-    virtual size_t position() const;
-    virtual size_t size() const;
+    virtual uint64_t position() const;
+    virtual uint64_t size() const;
 
     static FileOut* open(char const* filename, bool append);
 
@@ -47,8 +47,8 @@ private:
 
 private:
     void* m_handle;
-    size_t m_position;
-    size_t m_size;
+    uint64_t m_position;
+    uint64_t m_size;
 };
 
 } // end of fileos
