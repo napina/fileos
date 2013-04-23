@@ -160,6 +160,14 @@ private:
 };
 //-----------------------------------------------------------------------------
 
+FileSystem::FileSystem()
+{
+}
+
+FileSystem::~FileSystem()
+{
+}
+
 StreamIn* FileSystem::openForRead(char const* filename)
 {
     return FileIn::open(filename);
@@ -176,6 +184,11 @@ bool FileSystem::fileExists(char const* filename) const
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
+bool FileSystem::deleteFile(char const* filename)
+{
+    return ::DeleteFile(filename) != FALSE;
+}
+
 bool FileSystem::pathExists(char const* path) const
 {
     DWORD dwAttrib = ::GetFileAttributes(path);
@@ -185,11 +198,6 @@ bool FileSystem::pathExists(char const* path) const
 bool FileSystem::createPath(char const* path)
 {
     return ::CreateDirectory(path, NULL) != FALSE;
-}
-
-bool FileSystem::deleteFile(char const* filename)
-{
-    return ::DeleteFile(filename) != FALSE;
 }
 
 bool FileSystem::deletePath(char const* path)

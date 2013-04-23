@@ -38,6 +38,7 @@ class StreamOut;
 class FileSystem
 {
 public:
+    FileSystem();
     ~FileSystem();
 
     StreamIn* openForRead(char const* filename);
