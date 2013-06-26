@@ -35,6 +35,12 @@ namespace fileos {
 class StreamIn;
 class StreamOut;
 
+enum FileOperation {
+    fileoperation_added,
+    fileoperation_modified,
+    fileoperation_deleted,
+};
+
 class FileSystem
 {
 public:
@@ -57,14 +63,9 @@ public:
     void findFiles(char const* path, containos::List<char*>& foundFiles);
     //-------------------------------------------------------------------------
 
-    enum FileOperation {
-        fileoperation_added,
-        fileoperation_modified,
-        fileoperation_deleted,
-    };
-    typedef void (*FileModifiedCB)(uint32_t id, char const* filename, FileOperation operation);
+    typedef void FileModifiedCB(uint32_t id, char const* filename, FileOperation operation);
 
-    uint32_t watchFolder(char const* path, FileModifiedCB callback, bool recursive);
+    uint32_t watchFolder(char const* path, FileModifiedCB* callback, bool recursive);
     void unwatchFolder(uint32_t id);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------

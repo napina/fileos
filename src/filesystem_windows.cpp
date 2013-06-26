@@ -118,19 +118,19 @@ struct FileSystem::WatchInfo
 
             convertPath(filename, MAX_PATH, notify->FileName, notify->FileNameLength);
 
-            fileos::FileSystem::FileOperation operation;
+            fileos::FileOperation operation;
             switch(notify->Action)
             {
             case FILE_ACTION_RENAMED_NEW_NAME:
             case FILE_ACTION_ADDED:
-                operation = fileos::FileSystem::fileoperation_added;
+                operation = fileos::fileoperation_added;
                 break;
             case FILE_ACTION_RENAMED_OLD_NAME:
             case FILE_ACTION_REMOVED:
-                operation = fileos::FileSystem::fileoperation_deleted;
+                operation = fileos::fileoperation_deleted;
                 break;
             case FILE_ACTION_MODIFIED:
-                operation = fileos::FileSystem::fileoperation_modified;
+                operation = fileos::fileoperation_modified;
                 break;
             };
 
@@ -153,7 +153,7 @@ private:
     DWORD m_filter;
     uint32_t m_id;
 
-    FileSystem::FileModifiedCB m_callback;
+    FileSystem::FileModifiedCB* m_callback;
 
     bool m_isRecursive;
     bool m_isStopping;
@@ -231,11 +231,12 @@ void FileSystem::findFiles(char const* path, containos::List<char*>& foundFiles)
 #endif
 }
 
-uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB* callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path, recursive);
     uint32_t id = (uint32_t)m_watchList.insert(watch);
     watch->m_id = id;
+    watch->m_callback = callback;
     return id;
 }
 
