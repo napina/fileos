@@ -85,13 +85,13 @@ bool FileIn::canSeek() const
     return true;
 }
 
-FileIn* FileIn::open(char const* filename)
+FileIn* FileIn::open(wchar_t const* filename)
 {
     DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
     DWORD dwShareMode = FILE_SHARE_READ;
     DWORD dwCreationDisposition = OPEN_EXISTING;
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY | FILE_FLAG_NO_BUFFERING;
-    HANDLE handle = ::CreateFile(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         DWORD error = ::GetLastError();
         return nullptr;
@@ -99,10 +99,10 @@ FileIn* FileIn::open(char const* filename)
     return new FileIn(handle);
 }
 
-void foo(char const* filename)
+void foo(wchar_t const* filename)
 {
     WIN32_FILE_ATTRIBUTE_DATA fileAttributes;
-    BOOL ok = ::GetFileAttributesEx(filename, GetFileExInfoStandard, &fileAttributes);
+    BOOL ok = ::GetFileAttributesExW(filename, GetFileExInfoStandard, &fileAttributes);
 }
 
 } // end of namespace

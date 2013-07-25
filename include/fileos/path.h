@@ -32,11 +32,36 @@ namespace fileos {
 class Path
 {
 public:
-    char const* c_str() const;
+    Path();
+    Path(wchar_t const* path);
+    Path(wchar_t const* path, size_t aLength);
+    Path(Path const& other);
+    ~Path();
 
-protected:
-    char* m_buffer;
+    Path const& catenate(Path const& a, Path const& b);
+    Path const& catenate(Path const& a, wchar_t const* b);
+    Path const& catenate(wchar_t const* a, Path const& b);
+
+    wchar_t const* c_str() const;
+    size_t length() const;
+
+    // friends
+    friend Path catenate(Path const& a, Path const& b);
+    friend Path catenate(Path const& a, wchar_t const* b);
+    friend Path catenate(wchar_t const* a, Path const& b);
+
+private:
+    void construct(wchar_t const* a, size_t aLength);
+    void construct(wchar_t const* a, size_t aLength, wchar_t const* b, size_t bLength);
+    void destruct();
+
+    struct Buffer;
+    Buffer* m_buffer;
 };
+
+Path catenate(Path const& a, Path const& b);
+Path catenate(Path const& a, wchar_t const* b);
+Path catenate(wchar_t const* a, Path const& b);
 
 } // end of fileos
 
