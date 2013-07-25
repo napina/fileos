@@ -69,13 +69,13 @@ uint64_t FileOut::size() const
     return m_size;
 }
 
-FileOut* FileOut::open(char const* filename, bool append)
+FileOut* FileOut::open(wchar_t const* filename, bool append)
 {
     DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
     DWORD dwShareMode = FILE_SHARE_READ;
     DWORD dwCreationDisposition = CREATE_ALWAYS;
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-    HANDLE handle = ::CreateFile(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         DWORD error = ::GetLastError();
         return nullptr;

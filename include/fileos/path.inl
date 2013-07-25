@@ -25,13 +25,69 @@ IN THE SOFTWARE.
 #ifndef fileos_path_inl
 #define fileos_path_inl
 
+#include <wchar.h> // TODO get rid of this
+
 namespace fileos {
 
-__forceinline char const* Path::c_str() const
+struct Path::Buffer
 {
-    return m_buffer;
+    uint32_t m_refCount;
+    uint32_t m_length;
+    wchar_t m_data[1];
+};
+
+__forceinline wchar_t const* Path::c_str() const
+{
+    return m_buffer->m_data;
 }
 
-} // fileos fileos
+__forceinline size_t Path::length() const
+{
+    return m_buffer->m_length;
+}
+
+__forceinline Path const& Path::catenate(Path const& a, Path const& b)
+{
+    destruct();
+    construct(a.m_buffer->m_data, a.m_buffer->m_length, b.m_buffer->m_data, b.m_buffer->m_length);
+    return *this;
+}
+
+__forceinline Path const& Path::catenate(Path const& a, wchar_t const* b)
+{
+    destruct();
+    construct(a.m_buffer->m_data, a.m_buffer->m_length, b, fileos_strlen(b));
+    return *this;
+}
+
+__forceinline Path const& Path::catenate(wchar_t const* a, Path const& b)
+{
+    destruct();
+    construct(a, fileos_strlen(a), b.m_buffer->m_data, b.m_buffer->m_length);
+    return *this;
+}
+
+__forceinline Path catenate(Path const& a, Path const& b)
+{
+    Path path;
+    path.construct(a.m_buffer->m_data, a.m_buffer->m_length, b.m_buffer->m_data, b.m_buffer->m_length);
+    return path;
+}
+
+__forceinline Path catenate(Path const& a, wchar_t const* b)
+{
+    Path path;
+    path.construct(a.m_buffer->m_data, a.m_buffer->m_length, b, fileos_strlen(b));
+    return path;
+}
+
+__forceinline Path catenate(wchar_t const* a, Path const& b)
+{
+    Path path;
+    path.construct(a, fileos_strlen(a), b.m_buffer->m_data, b.m_buffer->m_length);
+    return path;
+}
+
+} // end of fileos
 
 #endif

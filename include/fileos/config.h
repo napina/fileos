@@ -60,10 +60,16 @@ IN THE SOFTWARE.
 #ifndef fileos_assert
 #define fileos_assert(Test)
 #endif
+
+#ifndef fileos_strlen
+#define fileos_strlen(Str)          wcslen(Str)
+#endif
 //----------------------------------------------------------------------------
 
 namespace fileos {
 
+typedef signed short int16_t;
+typedef unsigned short uint16_t;
 typedef signed int int32_t;
 typedef unsigned int uint32_t;
 typedef signed long long int64_t;

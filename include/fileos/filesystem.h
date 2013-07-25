@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #define fileos_filesystem_h
 
 #include "fileos/config.h"
+#include "fileos/path.h"
 #include "containos/event.h"
 #include "containos/bitblock.h"
 #include "containos/list.h"
@@ -35,36 +36,49 @@ namespace fileos {
 class StreamIn;
 class StreamOut;
 
+enum FileOperation {
+    fileoperation_added,
+    fileoperation_modified,
+    fileoperation_deleted,
+};
+
+struct FileTime
+{
+    uint16_t year;
+    uint16_t month;
+    uint16_t dayOfWeek;
+    uint16_t day;
+    uint16_t hour;
+    uint16_t minute;
+    uint16_t second;
+    uint16_t milliseconds;
+};
+
 class FileSystem
 {
 public:
     FileSystem();
     ~FileSystem();
 
-    StreamIn* openForRead(char const* filename);
-    StreamOut* openForWrite(char const* filename, bool append);
+    StreamIn* openForRead(wchar_t const* filename);
+    StreamOut* openForWrite(wchar_t const* filename, bool append);
     //-------------------------------------------------------------------------
 
-    bool fileExists(char const* filename) const;
-    bool deleteFile(char const* filename);
+    bool fileExists(wchar_t const* filename) const;
+    bool deleteFile(wchar_t const* filename);
 
-    bool pathExists(char const* path) const;
-    bool createPath(char const* path);
-    bool deletePath(char const* path);
+    bool pathExists(wchar_t const* path) const;
+    bool createPath(wchar_t const* path);
+    bool deletePath(wchar_t const* path);
     //-------------------------------------------------------------------------
 
     // TODO iteration functions
-    void findFiles(char const* path, containos::List<char*>& foundFiles);
+    void findFiles(wchar_t const* path, containos::List<wchar_t*>& foundFiles);
     //-------------------------------------------------------------------------
 
-    enum FileOperation {
-        fileoperation_added,
-        fileoperation_modified,
-        fileoperation_deleted,
-    };
-    typedef void (*FileModifiedCB)(uint32_t id, char const* filename, FileOperation operation);
+    typedef void FileModifiedCB(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp);
 
-    uint32_t watchFolder(char const* path, FileModifiedCB callback, bool recursive);
+    uint32_t watchFolder(Path const& path, FileModifiedCB* callback, bool recursive);
     void unwatchFolder(uint32_t id);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------

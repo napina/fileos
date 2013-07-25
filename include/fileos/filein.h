@@ -42,7 +42,7 @@ public:
     virtual bool isEos() const;
     virtual bool canSeek() const;
 
-    static FileIn* open(char const* filename);
+    static FileIn* open(wchar_t const* filename);
 
 private:
     FileIn(void* handle);
