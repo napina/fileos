@@ -90,7 +90,7 @@ FileIn* FileIn::open(char const* filename)
     DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
     DWORD dwShareMode = FILE_SHARE_READ;
     DWORD dwCreationDisposition = OPEN_EXISTING;
-    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY | FILE_FLAG_NO_BUFFERING;
+    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY;// | FILE_FLAG_NO_BUFFERING;
     HANDLE handle = ::CreateFile(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         DWORD error = ::GetLastError();
