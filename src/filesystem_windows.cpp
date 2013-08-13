@@ -29,7 +29,7 @@ IN THE SOFTWARE.
 
 namespace {
 
-void convertPath(char* dst, int dstLength, wchar_t const* src, int srcLength)
+/*void convertPath(char* dst, int dstLength, wchar_t const* src, int srcLength)
 {
     int count = ::WideCharToMultiByte(
         CP_ACP,
@@ -41,7 +41,7 @@ void convertPath(char* dst, int dstLength, wchar_t const* src, int srcLength)
         NULL,
         NULL);
     dst[count] = 0;
-}
+}*/
 
 fileos::FileTime getFileTime()
 {
@@ -65,15 +65,15 @@ namespace fileos {
 
 struct FileSystem::WatchInfo
 {
-    WatchInfo(wchar_t const* path, bool recursive)
+    WatchInfo(utf8_t const* path, bool recursive)
     {
-        m_handle = ::CreateFileW(path, FILE_LIST_DIRECTORY,
+        m_handle = ::CreateFileA(path, FILE_LIST_DIRECTORY,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
         if(m_handle != INVALID_HANDLE_VALUE) {
             ::memset(&m_overlapped, 0, sizeof(OVERLAPPED));
-            m_overlapped.hEvent = ::CreateEventW(NULL, TRUE, FALSE, NULL);
+            m_overlapped.hEvent = ::CreateEventA(NULL, TRUE, FALSE, NULL);
             m_bufferOffset = 0;
             m_filter = FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
             m_id = 0;
@@ -193,44 +193,44 @@ FileSystem::~FileSystem()
     }
 }
 
-StreamIn* FileSystem::openForRead(wchar_t const* filename)
+StreamIn* FileSystem::openForRead(utf8_t const* filename)
 {
     return FileIn::open(filename);
 }
 
-StreamOut* FileSystem::openForWrite(wchar_t const* filename, bool append)
+StreamOut* FileSystem::openForWrite(utf8_t const* filename, bool append)
 {
     return FileOut::open(filename, append);
 }
 
-bool FileSystem::fileExists(wchar_t const* filename) const
+bool FileSystem::fileExists(utf8_t const* filename) const
 {
-    DWORD dwAttrib = ::GetFileAttributesW(filename);
+    DWORD dwAttrib = ::GetFileAttributesA(filename);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
-bool FileSystem::deleteFile(wchar_t const* filename)
+bool FileSystem::deleteFile(utf8_t const* filename)
 {
-    return ::DeleteFileW(filename) != FALSE;
+    return ::DeleteFileA(filename) != FALSE;
 }
 
-bool FileSystem::pathExists(wchar_t const* path) const
+bool FileSystem::pathExists(utf8_t const* path) const
 {
-    DWORD dwAttrib = ::GetFileAttributesW(path);
+    DWORD dwAttrib = ::GetFileAttributesA(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
-bool FileSystem::createPath(wchar_t const* path)
+bool FileSystem::createPath(utf8_t const* path)
 {
-    return ::CreateDirectoryW(path, NULL) != FALSE;
+    return ::CreateDirectoryA(path, NULL) != FALSE;
 }
 
-bool FileSystem::deletePath(wchar_t const* path)
+bool FileSystem::deletePath(utf8_t const* path)
 {
-    return ::RemoveDirectoryW(path) != FALSE;
+    return ::RemoveDirectoryA(path) != FALSE;
 }
 
-void FileSystem::findFiles(wchar_t const* path, containos::List<wchar_t*>& foundFiles)
+void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles)
 {
 #if 0
     WIN32_FIND_DATA findData;

@@ -40,7 +40,7 @@ public:
     virtual uint64_t position() const;
     virtual uint64_t size() const;
 
-    static FileOut* open(wchar_t const* filename, bool append);
+    static FileOut* open(utf8_t const* filename, bool append);
 
 private:
     FileOut(void* handle);

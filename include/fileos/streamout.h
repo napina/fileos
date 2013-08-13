@@ -44,7 +44,7 @@ public:
     // write shorthands (default implementation uses write())
     virtual void writeSizeString(char const* text, uint32_t size);
 
-    template<typename T> void write(T const& vec);
+    template<typename T> void write(T const& data);
 
 protected:
     REF_STORAGE(StreamOut,uint32_t);

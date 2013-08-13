@@ -60,20 +60,20 @@ public:
     FileSystem();
     ~FileSystem();
 
-    StreamIn* openForRead(wchar_t const* filename);
-    StreamOut* openForWrite(wchar_t const* filename, bool append);
+    StreamIn* openForRead(utf8_t const* filename);
+    StreamOut* openForWrite(utf8_t const* filename, bool append);
     //-------------------------------------------------------------------------
 
-    bool fileExists(wchar_t const* filename) const;
-    bool deleteFile(wchar_t const* filename);
+    bool fileExists(utf8_t const* filename) const;
+    bool deleteFile(utf8_t const* filename);
 
-    bool pathExists(wchar_t const* path) const;
-    bool createPath(wchar_t const* path);
-    bool deletePath(wchar_t const* path);
+    bool pathExists(utf8_t const* path) const;
+    bool createPath(utf8_t const* path);
+    bool deletePath(utf8_t const* path);
     //-------------------------------------------------------------------------
 
     // TODO iteration functions
-    void findFiles(wchar_t const* path, containos::List<wchar_t*>& foundFiles);
+    void findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles);
     //-------------------------------------------------------------------------
 
     typedef void FileModifiedCB(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp);

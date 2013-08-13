@@ -62,7 +62,7 @@ IN THE SOFTWARE.
 #endif
 
 #ifndef fileos_strlen
-#define fileos_strlen(Str)          wcslen(Str)
+#define fileos_strlen(Str)          ::_mbstrlen_l(Str, nullptr)
 #endif
 //----------------------------------------------------------------------------
 
@@ -74,6 +74,7 @@ typedef signed int int32_t;
 typedef unsigned int uint32_t;
 typedef signed long long int64_t;
 typedef unsigned long long uint64_t;
+typedef char utf8_t;
 
 } // end of fileos
 

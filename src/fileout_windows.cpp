@@ -39,7 +39,7 @@ FileOut::FileOut(void* handle)
     , m_position(0)
     , m_size(0)
 {
-    LONG offsetHigh;
+    LONG offsetHigh = 0;
     DWORD offsetLow = ::SetFilePointer(m_handle, 0, &offsetHigh, FILE_CURRENT);
     m_position = offsetLow | (int64_t(offsetHigh) << 32);
     m_size = m_position;
@@ -69,13 +69,13 @@ uint64_t FileOut::size() const
     return m_size;
 }
 
-FileOut* FileOut::open(wchar_t const* filename, bool append)
+FileOut* FileOut::open(utf8_t const* filename, bool append)
 {
     DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
-    DWORD dwShareMode = FILE_SHARE_READ;
+    DWORD dwShareMode = 0;//FILE_SHARE_READ;
     DWORD dwCreationDisposition = CREATE_ALWAYS;
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         DWORD error = ::GetLastError();
         return nullptr;
