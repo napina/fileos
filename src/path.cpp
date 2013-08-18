@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #define _CRT_SECURE_NO_WARNINGS
 #include "fileos/path.h"
 #include <wchar.h>
-//#include <string.h>
+#include <string.h>
 
 namespace fileos {
 
@@ -70,6 +70,26 @@ Path::~Path()
     destruct();
 }
 
+Path Path::parent() const
+{
+    utf8_t const* str = ::strrchr(m_buffer->m_data, '/');
+    if(str == nullptr)
+        return Path("");
+    Path result;
+    result.construct(m_buffer->m_data, ptrdiff_t(str) - ptrdiff_t(m_buffer->m_data));
+    return result;
+}
+
+utf8_t const* Path::extension() const
+{
+    utf8_t const* result = ::strrchr(m_buffer->m_data, '.');
+    if(result == nullptr)
+        return "";
+    if(result[1] == '/')
+        return "";
+    return ++result;
+}
+
 void Path::construct(utf8_t const* str, size_t length)
 {
     fileos_assert(m_buffer == nullptr);
@@ -78,6 +98,8 @@ void Path::construct(utf8_t const* str, size_t length)
     m_buffer->m_data[length] = 0;
     m_buffer->m_length = uint32_t(length);
     m_buffer->m_refCount = 1;
+    changeSlashes();
+    trimFolders();
 }
 
 void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bLength)
@@ -91,6 +113,9 @@ void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bL
     m_buffer->m_data[newLength] = 0;
     m_buffer->m_length = newLength;
     m_buffer->m_refCount = 1;
+
+    changeSlashes();
+    trimFolders();
 }
 
 void Path::construct(wchar_t const* str, size_t length)
@@ -102,6 +127,9 @@ void Path::construct(wchar_t const* str, size_t length)
     m_buffer->m_data[bufferSize] = 0;
     m_buffer->m_length = uint32_t(length);
     m_buffer->m_refCount = 1;
+
+    changeSlashes();
+    trimFolders();
 }
 
 void Path::destruct()
@@ -115,6 +143,31 @@ void Path::destruct()
 
     ::free(m_buffer);
     m_buffer = nullptr;
+}
+
+void Path::changeSlashes()
+{
+    utf8_t* str = ::strchr(m_buffer->m_data, '\\');
+    while(str != nullptr) {
+        *str = '/';
+        str = ::strchr(str, '\\');
+    }
+}
+
+void Path::trimFolders()
+{
+    utf8_t* dirStr = ::strstr(m_buffer->m_data, "/../");
+    if(dirStr == nullptr)
+        return;
+    (*dirStr) = 0;
+    utf8_t* prevStr = ::strrchr(m_buffer->m_data, '/');
+    if(prevStr == nullptr)
+        return;
+
+    ::memcpy(prevStr, dirStr + 3, m_buffer->m_length - ptrdiff_t(dirStr - m_buffer->m_data) + 2);
+    m_buffer->m_length = uint32_t(fileos_strlen(m_buffer->m_data));
+
+    trimFolders();
 }
 
 } // end of fileos

@@ -67,6 +67,13 @@ __forceinline Path const& Path::catenate(utf8_t const* a, Path const& b)
     return *this;
 }
 
+__forceinline Path const& Path::catenate(utf8_t const* a, utf8_t const* b)
+{
+    destruct();
+    construct(a, fileos_strlen(a), b, fileos_strlen(b));
+    return *this;
+}
+
 __forceinline Path catenate(Path const& a, Path const& b)
 {
     Path path;

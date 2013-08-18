@@ -43,7 +43,12 @@ public:
     Path const& catenate(Path const& a, Path const& b);
     Path const& catenate(Path const& a, utf8_t const* b);
     Path const& catenate(utf8_t const* a, Path const& b);
+    Path const& catenate(utf8_t const* a, utf8_t const* b);
 
+    //Path drive() const;
+    Path parent() const;
+    utf8_t const* filename() const;
+    utf8_t const* extension() const;
     utf8_t const* c_str() const;
     size_t length() const;
 
@@ -57,6 +62,8 @@ private:
     void construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bLength);
     void construct(wchar_t const* str, size_t strLength);
     void destruct();
+    void changeSlashes();
+    void trimFolders();
 
     struct Buffer;
     Buffer* m_buffer;
