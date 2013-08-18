@@ -53,6 +53,12 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path.filename(), "file.foo");
     }*/
 
+    TEST(Filename)
+    {
+        f::Path path("folder/test.foobar");
+        EXPECT_EQUAL(path.filename(), "test.foobar");
+    }
+
     TEST(Extension)
     {
         f::Path path("../test.foobar");

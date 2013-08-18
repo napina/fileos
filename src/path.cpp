@@ -80,6 +80,14 @@ Path Path::parent() const
     return result;
 }
 
+utf8_t const* Path::filename() const
+{
+    utf8_t const* result = ::strrchr(m_buffer->m_data, '/');
+    if(result == nullptr)
+        return "";
+    return ++result;
+}
+
 utf8_t const* Path::extension() const
 {
     utf8_t const* result = ::strrchr(m_buffer->m_data, '.');
