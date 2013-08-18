@@ -83,4 +83,18 @@ TEST_SUITE(Path)
         path.catenate("folder/folder2", "../file.foo");
         EXPECT_EQUAL(path.c_str(), "folder/file.foo");
     }
+
+    TEST(CatenateWithSeparator)
+    {
+        f::Path path;
+        path.catenate("folder/", "file.foo");
+        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+    }
+
+    TEST(CatenateFirstEmpty)
+    {
+        f::Path path;
+        path.catenate("", "folder/file.foo");
+        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+    }
 }
