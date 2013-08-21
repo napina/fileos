@@ -29,6 +29,24 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
+void trimEndSlashes(utf8_t const*& str, size_t& length)
+{
+    if(length == 0)
+        return;
+
+    // check start
+    if((str[0] == '/') | (str[0] == '\\')) {
+        --length;
+        ++str;
+    }
+    if(length == 0)
+        return;
+
+    // check end
+    if((str[length - 1] == '/') | (str[length - 1] == '\\'))
+        --length;
+}
+
 Path::Path()
     : m_buffer(nullptr)
 {
@@ -101,11 +119,15 @@ utf8_t const* Path::extension() const
 void Path::construct(utf8_t const* str, size_t length)
 {
     fileos_assert(m_buffer == nullptr);
+    trimEndSlashes(str, length);
+
     m_buffer = (Buffer*)::malloc(length + sizeof(Buffer));
     ::memcpy(m_buffer->m_data, str, length);
     m_buffer->m_data[length] = 0;
+
     m_buffer->m_length = uint32_t(length);
     m_buffer->m_refCount = 1;
+
     changeSlashes();
     trimFolders();
 }
@@ -113,13 +135,18 @@ void Path::construct(utf8_t const* str, size_t length)
 void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bLength)
 {
     fileos_assert(m_buffer == nullptr);
+    trimEndSlashes(a, aLength);
+    trimEndSlashes(b, bLength);
+
     uint32_t newLength = uint32_t(aLength + 1 + bLength);
     m_buffer = (Buffer*)::malloc(newLength + sizeof(Buffer));
+
     ::memcpy(m_buffer->m_data, a, aLength);
     m_buffer->m_data[aLength] = '/';
     ::memcpy(m_buffer->m_data + aLength + 1, b, bLength);
     m_buffer->m_data[newLength] = 0;
-    m_buffer->m_length = newLength;
+
+    m_buffer->m_length = uint32_t(newLength);
     m_buffer->m_refCount = 1;
 
     changeSlashes();
@@ -129,10 +156,12 @@ void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bL
 void Path::construct(wchar_t const* str, size_t length)
 {
     fileos_assert(m_buffer == nullptr);
+
     size_t bufferSize = ::wcsrtombs(nullptr, &str, length, nullptr);
     m_buffer = (Buffer*)::malloc(bufferSize + sizeof(Buffer));
     ::wcsrtombs(m_buffer->m_data, &str, length, nullptr);
     m_buffer->m_data[bufferSize] = 0;
+
     m_buffer->m_length = uint32_t(length);
     m_buffer->m_refCount = 1;
 

@@ -71,6 +71,18 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path.extension(), "");
     }
 
+    TEST(FolderHasDot)
+    {
+        f::Path path("../test");
+        EXPECT_EQUAL(path.extension(), "");
+    }
+
+    TEST(AutoFixPath)
+    {
+        f::Path path("/folder\\test.foobar\\");
+        EXPECT_EQUAL(path.c_str(), "folder/test.foobar");
+    }
+
     TEST(Parent)
     {
         f::Path path("nakki/makkara/test.foobar");
@@ -95,6 +107,13 @@ TEST_SUITE(Path)
     {
         f::Path path;
         path.catenate("", "folder/file.foo");
+        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+    }
+
+    TEST(CatenateOnlySlashes)
+    {
+        f::Path path;
+        path.catenate("/", "/folder/file.foo");
         EXPECT_EQUAL(path.c_str(), "folder/file.foo");
     }
 }
