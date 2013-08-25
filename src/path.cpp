@@ -67,8 +67,9 @@ Path::Path(utf8_t const* path, size_t length)
 Path::Path(Path const& other)
     : m_buffer(other.m_buffer)
 {
-    if(m_buffer)
-        ++m_buffer->m_refCount;
+    if(m_buffer) {
+        ++(m_buffer->m_refCount);
+    }
 }
 
 Path::Path(wchar_t const* path)
@@ -138,19 +139,25 @@ void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bL
     trimEndSlashes(a, aLength);
     trimEndSlashes(b, bLength);
 
-    uint32_t newLength = uint32_t(aLength + 1 + bLength);
-    m_buffer = (Buffer*)::malloc(newLength + sizeof(Buffer));
+    if(aLength == 0) {
+        construct(b, bLength);
+    } else if(bLength == 0) {
+        construct(a, aLength);
+    } else {
+        uint32_t newLength = uint32_t(aLength + 1 + bLength);
+        m_buffer = (Buffer*)::malloc(newLength + sizeof(Buffer));
 
-    ::memcpy(m_buffer->m_data, a, aLength);
-    m_buffer->m_data[aLength] = '/';
-    ::memcpy(m_buffer->m_data + aLength + 1, b, bLength);
-    m_buffer->m_data[newLength] = 0;
+        ::memcpy(m_buffer->m_data, a, aLength);
+        m_buffer->m_data[aLength] = '/';
+        ::memcpy(m_buffer->m_data + aLength + 1, b, bLength);
+        m_buffer->m_data[newLength] = 0;
 
-    m_buffer->m_length = uint32_t(newLength);
-    m_buffer->m_refCount = 1;
+        m_buffer->m_length = uint32_t(newLength);
+        m_buffer->m_refCount = 1;
 
-    changeSlashes();
-    trimFolders();
+        changeSlashes();
+        trimFolders();
+    }
 }
 
 void Path::construct(wchar_t const* str, size_t length)

@@ -116,4 +116,11 @@ TEST_SUITE(Path)
         path.catenate("/", "/folder/file.foo");
         EXPECT_EQUAL(path.c_str(), "folder/file.foo");
     }
+
+    TEST(CatenateOnlySlashesFolder)
+    {
+        f::Path path;
+        path.catenate("/folder/", "/");
+        EXPECT_EQUAL(path.c_str(), "folder");
+    }
 }
