@@ -25,7 +25,10 @@ IN THE SOFTWARE.
 #include "fileos/fileout.h"
 #include "fileos/filein.h"
 #include "fileos/path.h"
+#include "containos/hash.h"
 #include <windows.h>
+
+namespace c = containos;
 
 namespace {
 
@@ -259,7 +262,7 @@ void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFi
 uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB* callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path.c_str(), recursive);
-    uint32_t id = (uint32_t)m_watchList.insert(watch);
+    uint32_t id = c::hash32(path.c_str());
     watch->m_id = id;
     watch->m_callback = callback;
     return id;
@@ -267,20 +270,22 @@ uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB* callback, boo
 
 void FileSystem::unwatchFolder(uint32_t id)
 {
-    WatchInfo* watch = m_watchList[id];
-    if(watch == nullptr)
+    for(size_t i = 0; i < m_watchList.size(); ++i) {
+        if(m_watchList[i]->m_id != id)
+            continue;
+        delete m_watchList[i];
+        m_watchList.remove(i);
         return;
-    delete watch;
-    m_watchList[id] = nullptr;
+    }
 }
 
 void FileSystem::waitForChanges(uint32_t timeoutMs)
 {
     DWORD count = (DWORD)m_watchList.size();
     HANDLE* handles = reinterpret_cast<HANDLE*>(alloca(sizeof(HANDLE) * count));
-    size_t i = 0;
-    for(WatchList::iterator it = m_watchList.begin(); it != m_watchList.end(); ++it)
-        handles[i++] = (*it)->m_handle;
+    for(size_t i = 0; i < m_watchList.size(); ++i) {
+        handles[i++] = m_watchList[i]->m_handle;
+    }
     MsgWaitForMultipleObjectsEx(count, handles, timeoutMs, QS_ALLINPUT, MWMO_ALERTABLE);
 }
 
