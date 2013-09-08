@@ -47,6 +47,21 @@ void trimEndSlashes(utf8_t const*& str, size_t& length)
         --length;
 }
 
+size_t computeMultiByteLength(wchar_t const* str, size_t charCount)
+{
+    size_t resultCount = 0;
+    char buffer[4];
+    mbstate_t state;
+    ::mbrlen(nullptr, 0, &state);
+    for(size_t i = 0; i < charCount; ++i) {
+        size_t count = ::wcrtomb(nullptr, str[i], &state);
+        if(count > 4)
+            break;
+        resultCount += count;
+    }
+    return resultCount;
+}
+
 Path::Path()
     : m_buffer(nullptr)
 {
@@ -164,7 +179,7 @@ void Path::construct(wchar_t const* str, size_t length)
 {
     fileos_assert(m_buffer == nullptr);
 
-    size_t bufferSize = ::wcsrtombs(nullptr, &str, length, nullptr);
+    size_t bufferSize = computeMultiByteLength(str, length);
     m_buffer = (Buffer*)::malloc(bufferSize + sizeof(Buffer));
     ::wcsrtombs(m_buffer->m_data, &str, length, nullptr);
     m_buffer->m_data[bufferSize] = 0;
