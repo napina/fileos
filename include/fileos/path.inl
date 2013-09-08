@@ -46,6 +46,15 @@ __forceinline size_t Path::length() const
     return m_buffer->m_length;
 }
 
+__forceinline Path const& Path::operator=(Path const& path)
+{
+    destruct();
+    m_buffer = path.m_buffer;
+    if(m_buffer != nullptr)
+        ++(m_buffer->m_refCount);
+    return *this;
+}
+
 __forceinline Path const& Path::catenate(Path const& a, Path const& b)
 {
     destruct();

@@ -40,6 +40,7 @@ public:
     Path(Path const& other);
     ~Path();
 
+    Path const& operator=(Path const& path);
     Path const& catenate(Path const& a, Path const& b);
     Path const& catenate(Path const& a, utf8_t const* b);
     Path const& catenate(utf8_t const* a, Path const& b);
