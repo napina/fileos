@@ -33,7 +33,7 @@ public:
     ErrorOutput() {}
     virtual ~ErrorOutput() {}
     virtual void operator<<(unitos::String const& text) {
-        fprintf(stderr, "%s", text.GetCStr());
+        fprintf(stderr, "%s", text.c_str());
     }
 };
 
