@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tests\main.cpp" />
+    <ClCompile Include="..\..\tests\meta_tests.cpp" />
     <ClCompile Include="..\..\tests\path_tests.cpp" />
     <ClCompile Include="..\..\tests\streamin_tests.cpp" />
   </ItemGroup>
