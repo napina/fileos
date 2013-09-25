@@ -28,7 +28,6 @@ IN THE SOFTWARE.
 #include "fileos/config.h"
 #include "fileos/path.h"
 #include "containos/event.h"
-#include "containos/bitblock.h"
 #include "containos/list.h"
 
 namespace fileos {
@@ -85,7 +84,7 @@ public:
 
 protected:
     struct WatchInfo;
-    typedef containos::BitBlock<WatchInfo*> WatchList;
+    typedef containos::List<WatchInfo*> WatchList;
     WatchList m_watchList;
 };
 
