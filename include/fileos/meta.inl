@@ -71,6 +71,11 @@ __forceinline bool MetaNode::isValueType() const
     return m_valueOffset != 0;
 }
 
+__forceinline bool MetaNode::hasValue() const
+{
+    return isValueType() && (value()[0] != 0);
+}
+
 __forceinline char const* MetaNode::typeName() const
 {
     return m_type;

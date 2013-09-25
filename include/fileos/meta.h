@@ -46,6 +46,7 @@ public:
 
     bool isListType() const;
     bool isValueType() const;
+    bool hasValue() const;
     char const* typeName() const;
     char const* name() const;
     char const* value() const;
