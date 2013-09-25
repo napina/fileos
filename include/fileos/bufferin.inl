@@ -21,64 +21,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 
 =============================================================================*/
-//#include "stdafx.h"
-#include "fileos/bufferin.h"
-#include <stdio.h>
+#pragma once
+#ifndef fileos_bufferin_inl
+#define fileos_bufferin_inl
 
 namespace fileos {
 
-BufferIn::~BufferIn()
-{
-}
-
-BufferIn::BufferIn(char* buffer, uint64_t size)
+template<uint64_t Count>
+inline BufferIn::BufferIn(char const (&buffer)[Count])
     : StreamIn()
     , m_buffer(buffer)
     , m_position(0)
-    , m_size(size)
+    , m_size(Count)
 {
 }
 
-uint32_t BufferIn::read(void* destBuffer, uint32_t size)
-{
-    fileos_todo("add read check");
-    ::memcpy(destBuffer, m_buffer, size);
-    return size;
-}
+} // fileos namespace
 
-uint64_t BufferIn::seek(SeekFrom from, int64_t offset)
-{
-    switch(from) {
-        case seek_from_start:   m_position = uint64_t(offset);              break;
-        case seek_from_current: m_position = uint64_t(m_position - offset); break;
-        case seek_from_end:     m_position = uint64_t(m_size - offset);     break;
-    }
-    return m_position;
-}
-
-uint64_t BufferIn::position() const
-{
-    return m_position;
-}
-
-uint64_t BufferIn::size() const
-{
-    return m_size;
-}
-
-bool BufferIn::isEos() const
-{
-    return m_position >= m_size;
-}
-
-bool BufferIn::canSeek() const
-{
-    return true;
-}
-
-bool BufferIn::isInMemory() const
-{
-    return true;
-}
-
-} // end of namespace
+#endif

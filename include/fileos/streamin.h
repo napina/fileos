@@ -48,6 +48,7 @@ public:
     virtual uint64_t size() const = 0;
     virtual bool isEos() const = 0;
     virtual bool canSeek() const = 0;
+    virtual bool isInMemory() const = 0;
 
     // read shorthands (default implementation uses read())
     virtual uint32_t readLine(char* buffer, uint32_t bufferSize);

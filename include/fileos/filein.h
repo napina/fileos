@@ -41,6 +41,7 @@ public:
     virtual uint64_t size() const;
     virtual bool isEos() const;
     virtual bool canSeek() const;
+    virtual bool isInMemory() const;
 
     static FileIn* open(utf8_t const* filename);
 
