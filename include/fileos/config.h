@@ -29,7 +29,7 @@ IN THE SOFTWARE.
 #   define FILEOS_LINUX
 #   define FILEOS_ARCH32
 #elif defined(__APPLE__) && defined(__MACH__)
-#   define FILEOS_MACOS
+#   define FILEOS_MACOSX
 #   define FILEOS_ARCH32
 #elif defined(_WIN64) || defined(_M_X64)
 #   define FILEOS_WINDOWS
