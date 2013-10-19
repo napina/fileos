@@ -27,6 +27,11 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
+inline StreamIn::StreamIn()
+    : REF_STORAGE_INIT()
+{
+}
+
 inline uint32_t StreamIn::readLine(char* buffer, uint32_t bufferSize)
 {
     uint32_t readCount = 0;
@@ -47,7 +52,7 @@ inline uint32_t StreamIn::readLine(char* buffer, uint32_t bufferSize)
     return readCount;
 }
 /*
-inline void StreamIn::readSizeString(k::String& result)
+inline void StreamIn::readSizeString(c::String& result)
 {
     size_t size = read<uint32>();
     //result.reserve(size + 1);

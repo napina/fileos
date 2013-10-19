@@ -47,6 +47,7 @@ public:
     template<typename T> void write(T const& data);
 
 protected:
+    StreamOut();
     REF_STORAGE(StreamOut,uint32_t);
 };
 

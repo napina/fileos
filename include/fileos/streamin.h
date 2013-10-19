@@ -52,13 +52,13 @@ public:
 
     // read shorthands (default implementation uses read())
     virtual uint32_t readLine(char* buffer, uint32_t bufferSize);
-    //virtual void readSizeString(k::String& result);
+    //virtual void readSizeString(c::String& result);
 
     template<typename T> T read();
     template<typename T> void read(T& result);
 
 protected:
-    StreamIn() : REF_STORAGE_INIT() {}
+    StreamIn();
 
     REF_STORAGE(StreamIn,uint32_t);
 };
