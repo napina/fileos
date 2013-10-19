@@ -178,7 +178,7 @@ private:
     DWORD m_filter;
     uint32_t m_id;
 
-    FileSystem::FileModifiedCB* m_callback;
+    FileSystem::EventType m_callback;
 
     bool m_isRecursive;
     bool m_isStopping;
@@ -259,12 +259,12 @@ void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFi
 #endif
 }
 
-uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB* callback, bool recursive)
+uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path.c_str(), recursive);
     uint32_t id = c::hash32(path.c_str());
     watch->m_id = id;
-    watch->m_callback = callback;
+    watch->m_callback.add(callback);
     m_watchList.insert(watch);
     return id;
 }

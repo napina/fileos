@@ -55,6 +55,7 @@ struct FileTime
 
 class FileSystem
 {
+    typedef containos::Event<void (uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp)> EventType;
 public:
     FileSystem();
     ~FileSystem();
@@ -75,9 +76,8 @@ public:
     void findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles);
     //-------------------------------------------------------------------------
 
-    typedef void FileModifiedCB(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp);
-
-    uint32_t watchFolder(Path const& path, FileModifiedCB* callback, bool recursive);
+    typedef EventType::DelegateType FileModifiedCB;
+    uint32_t watchFolder(Path const& path, FileModifiedCB callback, bool recursive);
     void unwatchFolder(uint32_t id);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------
