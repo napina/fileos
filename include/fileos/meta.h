@@ -80,8 +80,9 @@ public:
     bool parse(char const* buffer, size_t length);
     bool parse(StreamIn& stream);
 
-    MetaNode const* first() const;
-    MetaNode const* find(const char* name) const;
+    MetaNode const* base() const;
+    MetaNode const* firstChild() const;
+    MetaNode const* findChild(const char* name) const;
 
 private:
     char* m_buffer;

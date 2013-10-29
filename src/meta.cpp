@@ -87,9 +87,9 @@ MetaNode const* MetaNode::findChild(const char* name) const
 
 MetaParser::MetaParser()
 {
-    m_nodes = new MetaNode[max_nodes];
-    m_nodes->setAsValue(nullptr, nullptr, nullptr);
     m_buffer = nullptr;
+    m_nodes = new MetaNode[max_nodes];
+    m_nodes[0].setAsList("", "", nullptr);
 }
 
 MetaParser::~MetaParser()
@@ -116,8 +116,8 @@ bool MetaParser::parse(char const* buffer, size_t length)
 bool MetaParser::parse(char* text, size_t length)
 {
     MetaNode* nodeStack[max_depth];
-    int nodeIndex = 0;
-    int nodeStackIndex = 0;
+    int nodeIndex = 1;
+    int nodeStackIndex = 1;
     char* curr = text;
     char* end = curr + length;
     char const* typeName;
@@ -127,7 +127,8 @@ bool MetaParser::parse(char* text, size_t length)
     curr = ::skipWhitespace(curr, end);
 
     // format: type name [value]
-    nodeStack[0] = nullptr;
+    nodeStack[0] = &m_nodes[0];
+    nodeStack[1] = nullptr;
     while(curr != end) {
         MetaNode* node = &m_nodes[nodeIndex++];
         MetaNode* previousMetaNode = nodeStack[nodeStackIndex];
@@ -178,26 +179,31 @@ bool MetaParser::parse(char* text, size_t length)
             --nodeStackIndex;
             ++curr;
             curr = ::skipWhitespace(curr, end);
-            if(curr == nullptr) return true;
+            if(curr == nullptr) {
+                curr = end;
+                break;
+            }
         }
     }
+    // check if we had any nodes and first to be child of base
+    if(nodeStack[1] != nullptr)
+        m_nodes[0].setAsList("", "", &m_nodes[1]);
     return true;
 }
 
-MetaNode const* MetaParser::first() const
+MetaNode const* MetaParser::base() const
 {
     return &m_nodes[0];
 }
 
-MetaNode const* MetaParser::find(const char* name) const
+MetaNode const* MetaParser::firstChild() const
 {
-    MetaNode const* node = first();
-    while(node != nullptr) {
-        if(::strcmp(node->name(), name) == 0)
-            return node;
-        node = node->next();
-    }
-    return nullptr;
+    return base()->firstChild();
+}
+
+MetaNode const* MetaParser::findChild(const char* name) const
+{
+    return base()->findChild(name);
 }
 
 } // end of fileos
