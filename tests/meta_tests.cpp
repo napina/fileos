@@ -42,8 +42,8 @@ TEST_SUITE(Meta)
         bool ok = parser.parse(str.c_str(), str.length());
         EXPECT_TRUE(ok);
 
-        f::MetaNode const* node = parser.find("Test");
-        EXPECT_VALID(parser.find("Test"));
+        f::MetaNode const* node = parser.findChild("Test");
+        EXPECT_VALID(parser.findChild("Test"));
         EXPECT_EQUAL(node->typeName(), "int");
         EXPECT_EQUAL(node->value(), "133");
         EXPECT_EQUAL(node->valueAs<int>(), 133);
@@ -57,8 +57,8 @@ TEST_SUITE(Meta)
         bool ok = parser.parse(str.c_str(), str.length());
         EXPECT_TRUE(ok);
 
-        f::MetaNode const* listNode = parser.find("Test");
-        EXPECT_VALID(parser.find("Test"));
+        f::MetaNode const* listNode = parser.findChild("Test");
+        EXPECT_VALID(parser.findChild("Test"));
         EXPECT_EQUAL(listNode->typeName(), "list");
         EXPECT_NULL(listNode->firstChild());
     }
@@ -71,7 +71,7 @@ TEST_SUITE(Meta)
         bool ok = parser.parse(str.c_str(), str.length());
         EXPECT_TRUE(ok);
 
-        f::MetaNode const* listNode = parser.find("Test");
+        f::MetaNode const* listNode = parser.findChild("Test");
         EXPECT_VALID(listNode);
         EXPECT_VALID(listNode->findChild("First"));
         EXPECT_VALID(listNode->findChild("Second"));
@@ -95,7 +95,7 @@ TEST_SUITE(Meta)
         bool ok = parser.parse(buffer);
         EXPECT_TRUE(ok);
 
-        f::MetaNode const* listNode = parser.find("Test");
+        f::MetaNode const* listNode = parser.findChild("Test");
         EXPECT_VALID(listNode);
         EXPECT_VALID(listNode->findChild("Value"));
         EXPECT_EQUAL(listNode->typeName(), "list");
@@ -113,12 +113,12 @@ TEST_SUITE(Meta)
         f::MetaParser parser;
         bool ok = parser.parse(str.c_str(), str.length());
         EXPECT_TRUE(ok);
-        EXPECT_VALID(parser.find("Test1"));
-        EXPECT_VALID(parser.find("Test2"));
+        EXPECT_VALID(parser.findChild("Test1"));
+        EXPECT_VALID(parser.findChild("Test2"));
 
-        f::MetaNode const* list1Node = parser.find("Test1");
-        f::MetaNode const* list2Node = parser.find("Test2");
-        EXPECT_EQUAL(parser.first(), list1Node);
+        f::MetaNode const* list1Node = parser.findChild("Test1");
+        f::MetaNode const* list2Node = parser.findChild("Test2");
+        EXPECT_EQUAL(parser.firstChild(), list1Node);
         EXPECT_EQUAL(list1Node->next(), list2Node);
 
         EXPECT_EQUAL(list1Node->typeName(), "list");

@@ -77,6 +77,12 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path.extension(), "");
     }
 
+    TEST(NoFixPath)
+    {
+        f::Path path("../../test");
+        EXPECT_EQUAL(path.c_str(), "../../test");
+    }
+
     TEST(AutoFixPath)
     {
         f::Path path("/folder\\test.foobar\\");

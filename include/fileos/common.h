@@ -22,8 +22,8 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_config_h
-#define fileos_config_h
+#ifndef fileos_common_h
+#define fileos_common_h
 
 #if defined(__linux__) && defined(__ELF__)
 #   define FILEOS_LINUX

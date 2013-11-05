@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_filesystem_h
 #define fileos_filesystem_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 #include "fileos/path.h"
 #include "containos/event.h"
 #include "containos/list.h"
@@ -65,6 +65,7 @@ public:
     //-------------------------------------------------------------------------
 
     bool fileExists(utf8_t const* filename) const;
+    bool copyFile(utf8_t const* filename, utf8_t const* target);
     bool deleteFile(utf8_t const* filename);
 
     bool pathExists(utf8_t const* path) const;

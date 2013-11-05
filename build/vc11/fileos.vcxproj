@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\fileos\bufferin.h" />
-    <ClInclude Include="..\..\include\fileos\config.h" />
+    <ClInclude Include="..\..\include\fileos\common.h" />
     <ClInclude Include="..\..\include\fileos\filein.h" />
     <ClInclude Include="..\..\include\fileos\fileout.h" />
     <ClInclude Include="..\..\include\fileos\filesystem.h" />

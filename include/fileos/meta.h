@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_meta_h
 #define fileos_meta_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 
 namespace fileos {
 

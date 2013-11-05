@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_streamin_h
 #define fileos_streamin_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 #include "containos/ref.h"
 
 namespace fileos {

@@ -212,6 +212,22 @@ bool FileSystem::fileExists(utf8_t const* filename) const
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
+bool FileSystem::copyFile(utf8_t const* filename, utf8_t const* target)
+{
+    c::Ref<StreamIn> fileIn = openForRead(filename);
+    if(!fileIn.isValid())
+        return false;
+
+    if(!pathExists(target)) {
+        createPath(target);
+    }
+    c::Ref<StreamOut> fileOut = openForWrite(target, false);
+    if(fileOut.isValid())
+        return false;
+
+    fileos_todo("implement copy file");
+}
+
 bool FileSystem::deleteFile(utf8_t const* filename)
 {
     return ::DeleteFileA(filename) != FALSE;
