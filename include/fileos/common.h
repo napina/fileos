@@ -22,14 +22,14 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_config_h
-#define fileos_config_h
+#ifndef fileos_common_h
+#define fileos_common_h
 
 #if defined(__linux__) && defined(__ELF__)
 #   define FILEOS_LINUX
 #   define FILEOS_ARCH32
 #elif defined(__APPLE__) && defined(__MACH__)
-#   define FILEOS_MACOS
+#   define FILEOS_MACOSX
 #   define FILEOS_ARCH32
 #elif defined(_WIN64) || defined(_M_X64)
 #   define FILEOS_WINDOWS

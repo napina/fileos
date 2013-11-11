@@ -94,8 +94,8 @@ struct FileSystem::WatchInfo
             ::CancelIo(m_handle);
             registerCompletionRoutine(false);
 
-            while(!HasOverlappedIoCompleted(&m_overlapped)) {
-                SleepEx(1, TRUE);
+            if(!HasOverlappedIoCompleted(&m_overlapped)) {
+                ::SleepEx(1, TRUE);
             }
 
             ::CloseHandle(m_overlapped.hEvent);
@@ -178,7 +178,7 @@ private:
     DWORD m_filter;
     uint32_t m_id;
 
-    FileSystem::FileModifiedCB* m_callback;
+    FileSystem::EventType m_callback;
 
     bool m_isRecursive;
     bool m_isStopping;
@@ -210,6 +210,22 @@ bool FileSystem::fileExists(utf8_t const* filename) const
 {
     DWORD dwAttrib = ::GetFileAttributesA(filename);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
+}
+
+bool FileSystem::copyFile(utf8_t const* filename, utf8_t const* target)
+{
+    c::Ref<StreamIn> fileIn = openForRead(filename);
+    if(!fileIn.isValid())
+        return false;
+
+    if(!pathExists(target)) {
+        createPath(target);
+    }
+    c::Ref<StreamOut> fileOut = openForWrite(target, false);
+    if(fileOut.isValid())
+        return false;
+
+    fileos_todo("implement copy file");
 }
 
 bool FileSystem::deleteFile(utf8_t const* filename)
@@ -259,22 +275,24 @@ void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFi
 #endif
 }
 
-uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB* callback, bool recursive)
+uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path.c_str(), recursive);
     uint32_t id = c::hash32(path.c_str());
     watch->m_id = id;
-    watch->m_callback = callback;
+    watch->m_callback.add(callback);
+    m_watchList.insert(watch);
     return id;
 }
 
 void FileSystem::unwatchFolder(uint32_t id)
 {
-    for(size_t i = 0; i < m_watchList.size(); ++i) {
-        if(m_watchList[i]->m_id != id)
+    for(WatchList::iterator it = m_watchList.begin(); it != m_watchList.end(); ++it) {
+        WatchInfo* info = *it;
+        if(info->m_id != id)
             continue;
-        delete m_watchList[i];
-        m_watchList.remove(i);
+        m_watchList.remove(it);
+        delete info;
         return;
     }
 }
@@ -283,10 +301,11 @@ void FileSystem::waitForChanges(uint32_t timeoutMs)
 {
     DWORD count = (DWORD)m_watchList.size();
     HANDLE* handles = reinterpret_cast<HANDLE*>(alloca(sizeof(HANDLE) * count));
-    for(size_t i = 0; i < m_watchList.size(); ++i) {
-        handles[i++] = m_watchList[i]->m_handle;
+    int i = 0;
+    for(WatchList::iterator it = m_watchList.begin(); it != m_watchList.end(); ++it) {
+        handles[i++] = (*it)->m_handle;
     }
-    MsgWaitForMultipleObjectsEx(count, handles, timeoutMs, QS_ALLINPUT, MWMO_ALERTABLE);
+    ::MsgWaitForMultipleObjectsEx(count, handles, timeoutMs, QS_ALLINPUT, MWMO_ALERTABLE);
 }
 
 } // end of fileos

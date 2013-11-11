@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_streamout_h
 #define fileos_streamout_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 #include "containos/ref.h"
 
 namespace fileos {
@@ -47,6 +47,7 @@ public:
     template<typename T> void write(T const& data);
 
 protected:
+    StreamOut();
     REF_STORAGE(StreamOut,uint32_t);
 };
 

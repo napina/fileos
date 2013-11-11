@@ -22,55 +22,18 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_streamin_inl
-#define fileos_streamin_inl
+#ifndef fileos_bufferin_inl
+#define fileos_bufferin_inl
 
 namespace fileos {
 
-inline StreamIn::StreamIn()
-    : REF_STORAGE_INIT()
+template<uint64_t Count>
+inline BufferIn::BufferIn(char const (&buffer)[Count])
+    : StreamIn()
+    , m_buffer(buffer)
+    , m_position(0)
+    , m_size(Count)
 {
-}
-
-inline uint32_t StreamIn::readLine(char* buffer, uint32_t bufferSize)
-{
-    uint32_t readCount = 0;
-    char* buf = (char*)buffer;
-    char ch;
-    while(!isEos() && (readCount < bufferSize)) {
-        read(ch);
-        if(ch == 0x0d) {
-            read(ch);
-            // todo test if 0x0a
-            break;
-        }
-        *buf = ch;
-        ++buf;
-        ++readCount;
-    }
-    *buf = 0;
-    return readCount;
-}
-/*
-inline void StreamIn::readSizeString(c::String& result)
-{
-    size_t size = read<uint32>();
-    //result.reserve(size + 1);
-    read(const_cast<char*>(result.c_str()), size);
-}*/
-
-template<typename T>
-inline T StreamIn::read()
-{
-    T value;
-    read(&value, sizeof(T));
-    return value;
-}
-
-template<typename T>
-inline void StreamIn::read(T& value)
-{
-    read(&value, sizeof(T));
 }
 
 } // fileos namespace

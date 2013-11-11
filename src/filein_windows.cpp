@@ -85,6 +85,11 @@ bool FileIn::canSeek() const
     return true;
 }
 
+bool FileIn::isInMemory() const
+{
+    return false;
+}
+
 FileIn* FileIn::open(utf8_t const* filename)
 {
     DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;

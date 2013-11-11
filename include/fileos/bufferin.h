@@ -34,6 +34,7 @@ class BufferIn : public StreamIn
 public:
     virtual ~BufferIn();
     BufferIn(char* buffer, uint64_t size);
+    template<uint64_t Count> explicit BufferIn(char const (&buffer)[Count]);
 
     virtual uint32_t read(void* destBuffer, uint32_t size);
     virtual uint64_t seek(SeekFrom from, int64_t offset);
@@ -42,13 +43,16 @@ public:
     virtual uint64_t size() const;
     virtual bool isEos() const;
     virtual bool canSeek() const;
+    virtual bool isInMemory() const;
 
 protected:
-    char* m_buffer;
+    char const* m_buffer;
     uint64_t m_position;
     uint64_t m_size;
 };
 
 } // end of fileos
+
+#include "fileos/bufferin.inl"
 
 #endif

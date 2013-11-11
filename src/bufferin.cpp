@@ -76,4 +76,9 @@ bool BufferIn::canSeek() const
     return true;
 }
 
+bool BufferIn::isInMemory() const
+{
+    return true;
+}
+
 } // end of namespace

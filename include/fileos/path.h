@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_path_h
 #define fileos_path_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 
 namespace fileos {
 
@@ -52,6 +52,8 @@ public:
     utf8_t const* extension() const;
     utf8_t const* c_str() const;
     size_t length() const;
+
+    Path relativeTo(Path const& base) const;
 
     // friends
     friend Path catenate(Path const& a, Path const& b);

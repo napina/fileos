@@ -25,10 +25,9 @@ IN THE SOFTWARE.
 #ifndef fileos_filesystem_h
 #define fileos_filesystem_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 #include "fileos/path.h"
 #include "containos/event.h"
-#include "containos/bitblock.h"
 #include "containos/list.h"
 
 namespace fileos {
@@ -56,6 +55,7 @@ struct FileTime
 
 class FileSystem
 {
+    typedef containos::Event<void (uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp)> EventType;
 public:
     FileSystem();
     ~FileSystem();
@@ -65,6 +65,7 @@ public:
     //-------------------------------------------------------------------------
 
     bool fileExists(utf8_t const* filename) const;
+    bool copyFile(utf8_t const* filename, utf8_t const* target);
     bool deleteFile(utf8_t const* filename);
 
     bool pathExists(utf8_t const* path) const;
@@ -76,16 +77,15 @@ public:
     void findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles);
     //-------------------------------------------------------------------------
 
-    typedef void FileModifiedCB(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp);
-
-    uint32_t watchFolder(Path const& path, FileModifiedCB* callback, bool recursive);
+    typedef EventType::DelegateType FileModifiedCB;
+    uint32_t watchFolder(Path const& path, FileModifiedCB callback, bool recursive);
     void unwatchFolder(uint32_t id);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------
 
 protected:
     struct WatchInfo;
-    typedef containos::BitBlock<WatchInfo*> WatchList;
+    typedef containos::List<WatchInfo*> WatchList;
     WatchList m_watchList;
 };
 

@@ -20,17 +20,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\fileos\bufferin.h" />
-    <ClInclude Include="..\..\include\fileos\config.h" />
+    <ClInclude Include="..\..\include\fileos\common.h" />
     <ClInclude Include="..\..\include\fileos\filein.h" />
     <ClInclude Include="..\..\include\fileos\fileout.h" />
     <ClInclude Include="..\..\include\fileos\filesystem.h" />
     <ClInclude Include="..\..\include\fileos\path.h" />
-    <ClInclude Include="..\..\include\fileos\streamer.h" />
+    <ClInclude Include="..\..\include\fileos\meta.h" />
     <ClInclude Include="..\..\include\fileos\streamin.h" />
     <ClInclude Include="..\..\include\fileos\streamout.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\include\fileos\bufferin.inl" />
     <None Include="..\..\include\fileos\path.inl" />
+    <None Include="..\..\include\fileos\meta.inl" />
     <None Include="..\..\include\fileos\streamin.inl" />
     <None Include="..\..\include\fileos\streamout.inl" />
     <None Include="..\..\README.md" />
@@ -41,6 +43,7 @@
     <ClCompile Include="..\..\src\fileout_windows.cpp" />
     <ClCompile Include="..\..\src\filesystem_windows.cpp" />
     <ClCompile Include="..\..\src\path.cpp" />
+    <ClCompile Include="..\..\src\meta.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BD86B79D-AD72-66A0-3F06-3165E6AEAA52}</ProjectGuid>

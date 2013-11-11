@@ -27,6 +27,11 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
+inline StreamOut::StreamOut()
+    : REF_STORAGE_INIT()
+{
+}
+
 __forceinline void StreamOut::writeSizeString(char const* text, uint32_t size)
 {
     write<uint32_t>(size);

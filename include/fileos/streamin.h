@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #ifndef fileos_streamin_h
 #define fileos_streamin_h
 
-#include "fileos/config.h"
+#include "fileos/common.h"
 #include "containos/ref.h"
 
 namespace fileos {
@@ -48,16 +48,17 @@ public:
     virtual uint64_t size() const = 0;
     virtual bool isEos() const = 0;
     virtual bool canSeek() const = 0;
+    virtual bool isInMemory() const = 0;
 
     // read shorthands (default implementation uses read())
     virtual uint32_t readLine(char* buffer, uint32_t bufferSize);
-    //virtual void readSizeString(k::String& result);
+    //virtual void readSizeString(c::String& result);
 
     template<typename T> T read();
     template<typename T> void read(T& result);
 
 protected:
-    StreamIn() : REF_STORAGE_INIT() {}
+    StreamIn();
 
     REF_STORAGE(StreamIn,uint32_t);
 };

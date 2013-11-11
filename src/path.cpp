@@ -132,6 +132,12 @@ utf8_t const* Path::extension() const
     return ++result;
 }
 
+Path Path::relativeTo(Path const& base) const
+{
+    fileos_todo("Implement Path relativeTo");
+    return *this;
+}
+
 void Path::construct(utf8_t const* str, size_t length)
 {
     fileos_assert(m_buffer == nullptr);
@@ -218,10 +224,14 @@ void Path::trimFolders()
     utf8_t* dirStr = ::strstr(m_buffer->m_data, "/../");
     if(dirStr == nullptr)
         return;
+
     (*dirStr) = 0;
     utf8_t* prevStr = ::strrchr(m_buffer->m_data, '/');
-    if(prevStr == nullptr)
+    if(prevStr == nullptr) {
+        fileos_todo("fix folder trimming with multiple ..");
+        (*dirStr) = '/';
         return;
+    }
 
     ::memcpy(prevStr, dirStr + 3, m_buffer->m_length - ptrdiff_t(dirStr - m_buffer->m_data) + 2);
     m_buffer->m_length = uint32_t(fileos_strlen(m_buffer->m_data));
