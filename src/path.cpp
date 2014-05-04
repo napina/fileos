@@ -50,7 +50,6 @@ void trimEndSlashes(utf8_t const*& str, size_t& length)
 size_t computeMultiByteLength(wchar_t const* str, size_t charCount)
 {
     size_t resultCount = 0;
-    char buffer[4];
     mbstate_t state;
     ::mbrlen(nullptr, 0, &state);
     for(size_t i = 0; i < charCount; ++i) {
@@ -134,6 +133,7 @@ utf8_t const* Path::extension() const
 
 Path Path::relativeTo(Path const& base) const
 {
+    base;
     fileos_todo("Implement Path relativeTo");
     return *this;
 }

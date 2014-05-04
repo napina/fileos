@@ -54,8 +54,9 @@ uint32_t FileIn::read(void* destBuffer, uint32_t size)
 uint64_t FileIn::seek(SeekFrom from, int64_t offset)
 {
     LARGE_INTEGER loffset;
-    loffset.QuadPart = offset;
     LARGE_INTEGER lposition;
+    loffset.QuadPart = offset;
+    lposition.QuadPart = offset;
     switch(from) {
         case seek_from_start:   ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_BEGIN);      break;
         case seek_from_current: ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_CURRENT);    break;
@@ -98,7 +99,7 @@ FileIn* FileIn::open(utf8_t const* filename)
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY;// | FILE_FLAG_NO_BUFFERING;
     HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
-        DWORD error = ::GetLastError();
+        //DWORD error = ::GetLastError();
         return nullptr;
     }
     return new FileIn(handle);

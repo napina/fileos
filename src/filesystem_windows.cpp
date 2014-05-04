@@ -137,7 +137,7 @@ struct FileSystem::WatchInfo
             notify = reinterpret_cast<FILE_NOTIFY_INFORMATION*>(&watch->m_buffer[offset]);
             offset += notify->NextEntryOffset;
 
-            fileos::FileOperation operation;
+            fileos::FileOperation operation = fileos::fileoperation_modified;
             switch(notify->Action)
             {
             case FILE_ACTION_RENAMED_NEW_NAME:
@@ -226,6 +226,7 @@ bool FileSystem::copyFile(utf8_t const* filename, utf8_t const* target)
         return false;
 
     fileos_todo("implement copy file");
+    return false;
 }
 
 bool FileSystem::deleteFile(utf8_t const* filename)
@@ -251,6 +252,8 @@ bool FileSystem::deletePath(utf8_t const* path)
 
 void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles)
 {
+    path;
+    foundFiles;
 #if 0
     WIN32_FIND_DATA findData;
 

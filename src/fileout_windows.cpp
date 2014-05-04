@@ -77,7 +77,7 @@ FileOut* FileOut::open(utf8_t const* filename, bool append)
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
     HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
-        DWORD error = ::GetLastError();
+        //DWORD error = ::GetLastError();
         return nullptr;
     }
     return new FileOut(handle);
