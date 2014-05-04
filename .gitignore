@@ -33,4 +33,4 @@
 *.unsuccessfulbuild
 
 # Filter folders
-#build/vc11
+build
