@@ -51,6 +51,7 @@ size_t computeMultiByteLength(wchar_t const* str, size_t charCount)
 {
     size_t resultCount = 0;
     mbstate_t state;
+    char buffer[4];
     ::mbrlen(nullptr, 0, &state);
     for(size_t i = 0; i < charCount; ++i) {
         size_t count = ::wcrtomb(buffer, str[i], &state);
