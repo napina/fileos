@@ -30,6 +30,6 @@ TEST_SUITE(StreamIn)
 {
     TEST(Invalid)
     {
-        f::StreamIn* stream = nullptr;
+        //f::StreamIn* stream = nullptr;
     }
 }

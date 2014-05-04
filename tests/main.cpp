@@ -23,7 +23,7 @@ IN THE SOFTWARE.
 =============================================================================*/
 #include "unitos/unitos.h"
 #include <cstdio>
-#if defined(__UNITOS_WINDOWS__) && !(NDEBUG)
+#if defined(UNITOS_WINDOWS) && !(NDEBUG)
 #include <crtdbg.h>
 #endif
 
@@ -39,7 +39,9 @@ public:
 
 int main(int argc, char *argv[])
 {
-#if defined(__UNITOS_WINDOWS__) && !(NDEBUG)
+    argc;
+    argv;
+#if defined(UNITOS_WINDOWS) && !(NDEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);
     _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
