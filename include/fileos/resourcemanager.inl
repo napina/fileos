@@ -1,0 +1,52 @@
+/*=============================================================================
+
+Copyright (c) 2014 Ville Ruusutie
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+
+=============================================================================*/
+#pragma once
+#ifndef fileos_resourcemanager_inl
+#define fileos_resourcemanager_inl
+
+#include "fileos/filein.h"
+
+namespace fileos {
+
+template<typename T>
+inline T* ResourceManager::acquireResource(utf8_t const* filename, size_t)
+{
+    resourceid_t id = c::hash32(filename);
+    ResourceMap::iterator ite = m_resources.find(id);
+    if(ite != m_resources.end())
+        return static_cast<T*>(*ite);
+
+    c::Ref<f::StreamIn> stream = f::FileIn::open(filename);
+    T* resource = k_new(T)();
+    resource->m_id = id;
+    resource->m_state = Resource::state_pending;
+    resource->load(*this, *stream);
+    m_resources.insert(id, resource);
+    m_filenames.insert(id, filename);
+    return resource;
+}
+
+} // end of fileos
+
+#endif
