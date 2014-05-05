@@ -43,14 +43,14 @@ enum FileOperation {
 
 struct FileTime
 {
-    uint16_t year;
-    uint16_t month;
-    uint16_t dayOfWeek;
-    uint16_t day;
-    uint16_t hour;
-    uint16_t minute;
-    uint16_t second;
-    uint16_t milliseconds;
+    uint32_t year : 12;
+    uint32_t month : 4;
+    uint32_t dayOfWeek: 3;
+    uint32_t day : 5;
+    uint32_t hour : 4;
+    uint32_t minute : 6;
+    uint32_t second : 6;
+    uint32_t milliseconds : 10;
 };
 
 class FileSystem
