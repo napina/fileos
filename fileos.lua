@@ -23,5 +23,10 @@ project "fileos"
 	configuration "Release"
 		defines { "NDEBUG" }
 		flags { "NoRuntimeChecks" }
-		targetsuffix "_r"
 		optimize "Speed"
+		targetsuffix "_r"
+
+	configuration "x32"
+		targetname "fileos_x32"
+	configuration "x64"
+		targetsuffix "fileos_x64"
