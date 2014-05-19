@@ -9,8 +9,9 @@ project "fileos_unittest"
 	includedirs { "include", "../containos/include", "../unitos/include" }
 	links { "fileos", "unitos" }
 	objdir( "build/" .. _ACTION )
-	targetdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
+	targetdir( "build/" .. _ACTION )
+	targetname "%{prj.name}_%{cfg.platform}"
 
 	flags { "FatalWarnings", "NoBufferSecurityCheck", "NoEditAndContinue", "NoIncrementalLink", "NoPCH", "NoRTTI" }
 	warnings "Extra"
@@ -18,11 +19,14 @@ project "fileos_unittest"
 	configuration "Debug"
 		defines { "DEBUG", "_ITERATOR_DEBUG_LEVEL=0" }
 		flags { "Symbols" }
+		targetsuffix "_d"
 
 	configuration "Release"
 		defines { "NDEBUG" }
 		flags { "NoRuntimeChecks" }
 		optimize "Speed"
+		targetsuffix "_r"
 
 	configuration { "vs*"}
 		postbuildcommands { "\"$(TargetPath)\"" }
+

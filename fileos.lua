@@ -11,6 +11,7 @@ project "fileos"
 	objdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
 	targetdir "lib"
+	targetname "%{prj.name}_%{cfg.platform}"
 
 	flags { "FatalWarnings", "NoBufferSecurityCheck", "NoEditAndContinue", "NoIncrementalLink", "NoPCH", "NoRTTI" }
 	warnings "Extra"
@@ -25,8 +26,3 @@ project "fileos"
 		flags { "NoRuntimeChecks" }
 		optimize "Speed"
 		targetsuffix "_r"
-
-	configuration "x32"
-		targetname "fileos_x32"
-	configuration "x64"
-		targetname "fileos_x64"
