@@ -22,37 +22,33 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_filein_h
-#define fileos_filein_h
+#ifndef fileos_timeutil_windows_h
+#define fileos_timeutil_windows_h
 
-#include "fileos/streamin.h"
+#include "fileos/common.h"
+#include "fileos/fileinfo.h"
+#include <windows.h>
 
 namespace fileos {
 
-class FileIn : public StreamIn
+inline void convertTime(SYSTEMTIME const& systemTime, fileos::FileTime& result)
 {
-public:
-    virtual ~FileIn();
+    result.year = systemTime.wYear;
+    result.month = systemTime.wMonth;
+    result.dayOfWeek = systemTime.wDayOfWeek;
+    result.day = systemTime.wDay;
+    result.hour = systemTime.wHour;
+    result.minute = systemTime.wMinute;
+    result.second = systemTime.wSecond;
+    result.milliseconds = systemTime.wMilliseconds;
+}
 
-    virtual uint32_t read(void* destBuffer, uint32_t size);
-    virtual uint64_t seek(SeekFrom from, int64_t offset);
-
-    virtual uint64_t position() const;
-    virtual uint64_t size() const;
-    virtual bool isEos() const;
-    virtual bool canSeek() const;
-    virtual bool isInMemory() const;
-
-    static FileIn* open(utf16_t const* filename);
-
-private:
-    FileIn(void* handle);
-
-private:
-    void* m_handle;
-    uint64_t m_position;
-    uint64_t m_size;
-};
+inline void convertTime(FILETIME const& fileTime, fileos::FileTime& result)
+{
+    SYSTEMTIME systemTime;
+    ::FileTimeToSystemTime(&fileTime, &systemTime);
+    convertTime(systemTime, result);
+}
 
 } // end of fileos
 

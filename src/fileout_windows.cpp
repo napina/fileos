@@ -23,6 +23,7 @@ IN THE SOFTWARE.
 =============================================================================*/
 //#include "stdafx.h"
 #include "fileos/fileout.h"
+#include "fileos/fileinfo.h"
 #include <windows.h>
 
 namespace fileos {
@@ -69,18 +70,35 @@ uint64_t FileOut::size() const
     return m_size;
 }
 
-FileOut* FileOut::open(utf8_t const* filename, bool append)
+FileOut* FileOut::open(utf16_t const* filename, bool append)
 {
     DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
     DWORD dwShareMode = 0;//FILE_SHARE_READ;
     DWORD dwCreationDisposition = CREATE_ALWAYS;
     DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-    HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
     if(handle == INVALID_HANDLE_VALUE) {
         //DWORD error = ::GetLastError();
         return nullptr;
     }
     return new FileOut(handle);
+}
+
+bool FileOut::setWriteTime(const FileTime& time)
+{
+    FILETIME fileTime;
+    SYSTEMTIME systemTime;
+    systemTime.wYear = time.year;
+    systemTime.wMonth = time.month;
+    systemTime.wDayOfWeek = time.dayOfWeek;
+    systemTime.wDay = time.day;
+    systemTime.wHour = time.hour;
+    systemTime.wMinute = time.minute;
+    systemTime.wSecond = time.second;
+    systemTime.wMilliseconds = time.milliseconds;
+    ::SystemTimeToFileTime(&systemTime, &fileTime);
+    BOOL ok = ::SetFileTime(m_handle, nullptr, nullptr, &fileTime);
+    return ok == TRUE;
 }
 
 } // end of namespace

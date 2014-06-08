@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #include "fileos/filein.h"
 #include "fileos/path.h"
 #include "containos/hash.h"
+#include "timeutils_windows.h"
 #include <windows.h>
 
 namespace c = containos;
@@ -51,14 +52,7 @@ fileos::FileTime getFileTime()
     fileos::FileTime result;
     SYSTEMTIME systemTime;
     ::GetSystemTime(&systemTime);
-    result.year = systemTime.wYear;
-    result.month = systemTime.wMonth;
-    result.dayOfWeek = systemTime.wDayOfWeek;
-    result.day = systemTime.wDay;
-    result.hour = systemTime.wHour;
-    result.minute = systemTime.wMinute;
-    result.second = systemTime.wSecond;
-    result.milliseconds = systemTime.wMilliseconds;
+    convertTime(systemTime, result);
     return result;
 }
 
@@ -68,9 +62,9 @@ namespace fileos {
 
 struct FileSystem::WatchInfo
 {
-    WatchInfo(utf8_t const* path, bool recursive)
+    WatchInfo(utf16_t const* path, bool recursive)
     {
-        m_handle = ::CreateFileA(path, FILE_LIST_DIRECTORY,
+        m_handle = ::CreateFileW(path, FILE_LIST_DIRECTORY,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
 
@@ -196,23 +190,37 @@ FileSystem::~FileSystem()
     }
 }
 
-StreamIn* FileSystem::openForRead(utf8_t const* filename)
+StreamIn* FileSystem::openForRead(utf16_t const* filename)
 {
     return FileIn::open(filename);
 }
 
-StreamOut* FileSystem::openForWrite(utf8_t const* filename, bool append)
+StreamOut* FileSystem::openForWrite(utf16_t const* filename, bool append)
 {
     return FileOut::open(filename, append);
 }
 
-bool FileSystem::fileExists(utf8_t const* filename) const
+bool FileSystem::fileExists(utf16_t const* filename) const
 {
-    DWORD dwAttrib = ::GetFileAttributesA(filename);
+    DWORD dwAttrib = ::GetFileAttributesW(filename);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
-bool FileSystem::copyFile(utf8_t const* filename, utf8_t const* target)
+bool FileSystem::queryInfo(utf16_t const* filename, FileInfo& info) const
+{
+    WIN32_FILE_ATTRIBUTE_DATA fileInformation;
+    if(::GetFileAttributesExW(filename, GetFileExInfoStandard, &fileInformation) == FALSE)
+        return false;
+    convertTime(fileInformation.ftCreationTime, info.created);
+    convertTime(fileInformation.ftLastWriteTime, info.lastWrite);
+    info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
+    info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
+    info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+    info.isTemporary = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
+    return true;
+}
+
+bool FileSystem::copyFile(utf16_t const* filename, utf16_t const* target)
 {
     c::Ref<StreamIn> fileIn = openForRead(filename);
     if(!fileIn.isValid())
@@ -229,32 +237,32 @@ bool FileSystem::copyFile(utf8_t const* filename, utf8_t const* target)
     return false;
 }
 
-bool FileSystem::deleteFile(utf8_t const* filename)
+bool FileSystem::deleteFile(utf16_t const* filename)
 {
-    return ::DeleteFileA(filename) != FALSE;
+    return ::DeleteFileW(filename) != FALSE;
 }
 
-bool FileSystem::pathExists(utf8_t const* path) const
+bool FileSystem::pathExists(utf16_t const* path) const
 {
-    DWORD dwAttrib = ::GetFileAttributesA(path);
+    DWORD dwAttrib = ::GetFileAttributesW(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
-bool FileSystem::createPath(utf8_t const* path)
+bool FileSystem::createPath(utf16_t const* path)
 {
-    return ::CreateDirectoryA(path, NULL) != FALSE;
+    return ::CreateDirectoryW(path, NULL) != FALSE;
 }
 
-bool FileSystem::deletePath(utf8_t const* path)
+bool FileSystem::deletePath(utf16_t const* path)
 {
-    return ::RemoveDirectoryA(path) != FALSE;
+    return ::RemoveDirectoryW(path) != FALSE;
 }
 
+#if 0
 void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles)
 {
     path;
     foundFiles;
-#if 0
     WIN32_FIND_DATA findData;
 
     Path searchString = path + "*.*";
@@ -275,13 +283,13 @@ void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFi
     } while(::FindNextFile(handle, &findData));
 
     ::FindClose(handle);
-#endif
 }
+#endif
 
-uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(utf16_t const* path, FileModifiedCB callback, bool recursive)
 {
-    WatchInfo* watch = new WatchInfo(path.c_str(), recursive);
-    uint32_t id = c::hash32(path.c_str());
+    WatchInfo* watch = new WatchInfo(path, recursive);
+    uint32_t id = c::hash32(path);
     watch->m_id = id;
     watch->m_callback.add(callback);
     m_watchList.insert(watch);

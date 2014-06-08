@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #define fileos_fileout_h
 
 #include "fileos/streamout.h"
+#include "fileos/fileinfo.h"
 
 namespace fileos {
 
@@ -36,11 +37,12 @@ public:
 
     virtual uint32_t write(void const* srcBuffer, uint32_t size);
     virtual void flush();
+    virtual bool setWriteTime(const FileTime& filetime);
 
     virtual uint64_t position() const;
     virtual uint64_t size() const;
 
-    static FileOut* open(utf8_t const* filename, bool append);
+    static FileOut* open(utf16_t const* filename, bool append);
 
 private:
     FileOut(void* handle);

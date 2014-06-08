@@ -33,36 +33,38 @@ class Path
 {
 public:
     Path();
-    Path(utf8_t const* path);
-    Path(utf8_t const* path, size_t aLength);
-    Path(wchar_t const* path);
-    Path(wchar_t const* path, size_t aLength);
+    explicit Path(char const* path);
+    explicit Path(char const* path, size_t aLength);
+    explicit Path(utf16_t const* path);
+    explicit Path(utf16_t const* path, size_t aLength);
+    explicit Path(utf32_t const* path);
+    explicit Path(utf32_t const* path, size_t aLength);
     Path(Path const& other);
     ~Path();
 
     Path const& operator=(Path const& path);
     Path const& catenate(Path const& a, Path const& b);
-    Path const& catenate(Path const& a, utf8_t const* b);
-    Path const& catenate(utf8_t const* a, Path const& b);
-    Path const& catenate(utf8_t const* a, utf8_t const* b);
+    Path const& catenate(Path const& a, char const* b);
+    Path const& catenate(char const* a, Path const& b);
+    Path const& catenate(char const* a, char const* b);
 
     //Path drive() const;
     Path parent() const;
-    utf8_t const* filename() const;
-    utf8_t const* extension() const;
-    utf8_t const* c_str() const;
+    utf16_t const* filename() const;
+    utf16_t const* extension() const;
+    utf16_t const* c_str() const;
     size_t length() const;
 
     Path relativeTo(Path const& base) const;
 
     // friends
     friend Path catenate(Path const& a, Path const& b);
-    friend Path catenate(Path const& a, utf8_t const* b);
-    friend Path catenate(utf8_t const* a, Path const& b);
+    friend Path catenate(Path const& a, char const* b);
+    friend Path catenate(char const* a, Path const& b);
 
 private:
-    void construct(utf8_t const* a, size_t aLength);
-    void construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bLength);
+    void construct(char const* a, size_t aLength);
+    void construct(char const* a, size_t aLength, char const* b, size_t bLength);
     void construct(wchar_t const* str, size_t strLength);
     void destruct();
     void changeSlashes();
@@ -74,6 +76,6 @@ private:
 
 } // end of fileos
 
-#include "fileos/path.inl"
+//#include "fileos/path.inl"
 
 #endif

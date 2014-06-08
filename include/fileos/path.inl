@@ -33,10 +33,10 @@ struct Path::Buffer
 {
     uint32_t m_refCount;
     uint32_t m_length;
-    utf8_t m_data[1];
+    utf16_t m_data[4];
 };
 
-__forceinline utf8_t const* Path::c_str() const
+__forceinline utf16_t const* Path::c_str() const
 {
     return m_buffer->m_data;
 }

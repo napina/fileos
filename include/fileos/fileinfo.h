@@ -22,36 +22,33 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_filein_h
-#define fileos_filein_h
+#ifndef fileos_filetime_h
+#define fileos_filetime_h
 
-#include "fileos/streamin.h"
+#include "fileos/common.h"
 
 namespace fileos {
 
-class FileIn : public StreamIn
+struct FileTime
 {
-public:
-    virtual ~FileIn();
+    uint32_t year : 15;
+    uint32_t month : 4;
+    uint32_t dayOfWeek: 3;
+    uint32_t day : 5;
+    uint32_t hour : 5;
+    uint32_t minute : 6;
+    uint32_t second : 6;
+    uint32_t milliseconds : 10;
+};
 
-    virtual uint32_t read(void* destBuffer, uint32_t size);
-    virtual uint64_t seek(SeekFrom from, int64_t offset);
-
-    virtual uint64_t position() const;
-    virtual uint64_t size() const;
-    virtual bool isEos() const;
-    virtual bool canSeek() const;
-    virtual bool isInMemory() const;
-
-    static FileIn* open(utf16_t const* filename);
-
-private:
-    FileIn(void* handle);
-
-private:
-    void* m_handle;
-    uint64_t m_position;
-    uint64_t m_size;
+struct FileInfo
+{
+    FileTime created;
+    FileTime lastWrite;
+    uint64_t fileSize;
+    uint32_t isReadOnly : 1;
+    uint32_t isHidden : 1;
+    uint32_t isTemporary : 1;
 };
 
 } // end of fileos

@@ -74,7 +74,14 @@ typedef signed long long    int64_t;
 typedef unsigned short      uint16_t;
 typedef unsigned int        uint32_t;
 typedef unsigned long long  uint64_t;
-typedef char                utf8_t;
+#if defined(_MSC_VER)
+typedef wchar_t             utf16_t;
+#else
+typedef signed short        utf16_t;
+#endif
+typedef signed int          utf32_t;
+typedef uint32_t            resourceid_t;
+typedef uint32_t            typeid_t;
 
 } // end of fileos
 

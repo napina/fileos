@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #define fileos_filesystem_h
 
 #include "fileos/common.h"
+#include "fileos/fileinfo.h"
 #include "fileos/path.h"
 #include "containos/event.h"
 #include "containos/list.h"
@@ -41,44 +42,34 @@ enum FileOperation {
     fileoperation_deleted,
 };
 
-struct FileTime
-{
-    uint32_t year : 15;
-    uint32_t month : 4;
-    uint32_t dayOfWeek: 3;
-    uint32_t day : 5;
-    uint32_t hour : 5;
-    uint32_t minute : 6;
-    uint32_t second : 6;
-    uint32_t milliseconds : 10;
-};
-
 class FileSystem
 {
-    typedef containos::Event<void (uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp)> EventType;
+    typedef containos::Event<void (uint32_t id, utf16_t const* filename, FileOperation operation, FileTime& timestamp)> EventType;
 public:
     FileSystem();
     ~FileSystem();
 
-    StreamIn* openForRead(utf8_t const* filename);
-    StreamOut* openForWrite(utf8_t const* filename, bool append);
+    StreamIn* openForRead(utf16_t const* filename);
+    StreamOut* openForWrite(utf16_t const* filename, bool append);
     //-------------------------------------------------------------------------
 
-    bool fileExists(utf8_t const* filename) const;
-    bool copyFile(utf8_t const* filename, utf8_t const* target);
-    bool deleteFile(utf8_t const* filename);
-
-    bool pathExists(utf8_t const* path) const;
-    bool createPath(utf8_t const* path);
-    bool deletePath(utf8_t const* path);
+    bool fileExists(utf16_t const* filename) const;
+    bool queryInfo(utf16_t const* filename, FileInfo& info) const;
+    bool copyFile(utf16_t const* filename, utf16_t const* target);
+    bool deleteFile(utf16_t const* filename);
     //-------------------------------------------------------------------------
 
-    // TODO iteration functions
-    void findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles);
+    bool pathExists(utf16_t const* path) const;
+    bool createPath(utf16_t const* path);
+    bool deletePath(utf16_t const* path);
+    //-------------------------------------------------------------------------
+
+//    FileIterator findFiles(utf8_t const* path, utf8_t const* filter);
+//    FileIterator findDirectories(utf8_t const* path, utf8_t const* filter);
     //-------------------------------------------------------------------------
 
     typedef EventType::DelegateType FileModifiedCB;
-    uint32_t watchFolder(Path const& path, FileModifiedCB callback, bool recursive);
+    uint32_t watchFolder(utf16_t const* path, FileModifiedCB callback, bool recursive);
     void unwatchFolder(uint32_t id);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------

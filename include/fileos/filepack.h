@@ -22,38 +22,35 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_filein_h
-#define fileos_filein_h
+#ifndef fileos_filepack_h
+#define fileos_filepack_h
 
-#include "fileos/streamin.h"
+#include "fileos/common.h"
 
 namespace fileos {
 
-class FileIn : public StreamIn
+struct FilePackStruct;
+struct FileInfoStruct;
+struct FileOut;
+
+class FilePack
 {
 public:
-    virtual ~FileIn();
+    ~FilePack();
+    FilePack(void const* memoryAddress);
 
-    virtual uint32_t read(void* destBuffer, uint32_t size);
-    virtual uint64_t seek(SeekFrom from, int64_t offset);
+    FileOut* findFile(resourceid_t id) const;
+    FileOut* FindFile(utf16_t const* filename) const;
 
-    virtual uint64_t position() const;
-    virtual uint64_t size() const;
-    virtual bool isEos() const;
-    virtual bool canSeek() const;
-    virtual bool isInMemory() const;
-
-    static FileIn* open(utf16_t const* filename);
+    bool fileExists(resourceid_t id) const;
+    bool fileExists(utf16_t const* filename) const;
 
 private:
-    FileIn(void* handle);
-
-private:
-    void* m_handle;
-    uint64_t m_position;
-    uint64_t m_size;
+    void const* memoryAddress;
+    FilePackStruct const* header;
+    FileInfoStruct const* fileInfos;
 };
 
-} // end of fileos
+} // end of korppu
 
 #endif
