@@ -26,12 +26,19 @@ IN THE SOFTWARE.
 #define fileos_resourcemanager_h
 
 #include "fileos/common.h"
-#include "fileos/resource.h"
+#include "fileos/path.h"
 #include "fileos/filesystem.h"
 #include "containos/hashmap.h"
-#include "containos/ptr.h"
+//#include "containos/ptr.h"
+//#include "reflectos.h"
+
+namespace reflectos {
+    struct TypeInfo;
+}
 
 namespace fileos {
+
+class Resource;
 
 class ResourceManager
 {
@@ -41,33 +48,35 @@ public:
 
     void update();
 
-    void setRoot(utf8_t const* path);
+    void setRoot(utf16_t const* path);
     void enableHotloading(bool enable);
-
-    template<typename T>
-    T* acquireResource(utf8_t const* name, size_t cost);
-    bool unacquireResource(Resource* resource);
-
     bool hasPendingWork() const;
 
+    template<typename T>
+    T* acquireResourceAs(utf16_t const* name, size_t cost);
+    Resource* acquireResource(utf16_t const* name, size_t cost);
+    bool unacquireResource(Resource* resource);
+
+    template<typename T>
+    void registerResourceType();
+    void registerResourceType(const reflectos::TypeInfo* typeinfo);
+
 private:
-    void FileModified(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp);
+    void FileModified(uint32_t id, utf16_t const* filename, FileOperation operation, FileTime& timestamp);
 
 private:
     typedef containos::HashMap<resourceid_t, Resource*> ResourceMap;
-    typedef containos::HashMap<resourceid_t, Path> FilenameMap;
     typedef containos::List<Resource*> ResourceList;
     ResourceMap m_resources;
-    FilenameMap m_filenames;
     ResourceList m_pending;
 
     FileSystem m_fileSystem;
     Path m_rootPath;
     uint32_t m_hotloadId;
     bool m_hotload;
-    
-    struct LoaderThread;
-    //containos::Ptr<LoaderThread> m_loaderThread;
+
+    typedef containos::HashMap<typeid_t,const reflectos::TypeInfo*> ResourceTypeMap;
+    ResourceTypeMap m_resourceTypes;
 };
 
 } // end of fileos

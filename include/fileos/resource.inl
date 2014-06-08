@@ -29,7 +29,7 @@ namespace fileos {
 
 inline Resource::Resource()
     : m_id(0)
-    , m_state(state_notready)
+    , m_state(resourcestate_notready)
     , REF_STORAGE_INIT()
 {
 }
@@ -38,9 +38,9 @@ inline Resource::~Resource()
 {
 }
 
-__forceinline Resource::State Resource::state() const
+__forceinline ResourceState Resource::state() const
 {
-    return State(m_state);
+    return ResourceState(m_state);
 }
 
 __forceinline resourceid_t Resource::id() const

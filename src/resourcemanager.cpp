@@ -23,7 +23,7 @@ IN THE SOFTWARE.
 =============================================================================*/
 //#include "stdafx.h"
 #include "fileos/resourcemanager.h"
-//#include "fileos/thread.h"
+#include "fileos/resource.h"
 #include "fileos/filesystem.h"
 #include "fileos/filein.h"
 #include "containos/hash.h"
@@ -62,11 +62,11 @@ ResourceManager::~ResourceManager()
 
 ResourceManager::ResourceManager()
     : m_resources(64)
-    , m_filenames(64)
     , m_fileSystem()
     , m_rootPath()
     , m_hotloadId(0)
     , m_hotload(false)
+    , m_resourceTypes(64)
 {
     //m_loaderThread = k_new(LoaderThread)();
     //m_loaderThread->start();
@@ -92,7 +92,7 @@ void ResourceManager::update()
     }
 }
 
-void ResourceManager::setRoot(utf8_t const* path)
+void ResourceManager::setRoot(utf16_t const* path)
 {
     m_rootPath = path;
 }
@@ -104,13 +104,13 @@ void ResourceManager::enableHotloading(bool enable)
 
     m_hotload = enable;
     if(m_hotload) {
-        m_hotloadId = m_fileSystem.watchFolder(m_rootPath, fastdelegate::MakeDelegate(this, &ResourceManager::FileModified), true);
+        m_hotloadId = m_fileSystem.watchFolder(m_rootPath.c_str(), fastdelegate::MakeDelegate(this, &ResourceManager::FileModified), true);
     } else {
         m_fileSystem.unwatchFolder(m_hotloadId);
     }
 }
 
-void ResourceManager::FileModified(uint32_t id, Path const& filename, FileOperation operation, FileTime& timestamp)
+void ResourceManager::FileModified(uint32_t id, utf16_t const* filename, FileOperation operation, FileTime& timestamp)
 {
     if(operation != fileoperation_modified)
         return;
@@ -134,15 +134,60 @@ void ResourceManager::FileModified(uint32_t id, Path const& filename, FileOperat
     //info(k::Format("Resource '") % filename.c_str() % "' updated");
 }
 
+Resource* ResourceManager::acquireResource(utf16_t const* filename, size_t)
+{
+    resourceid_t id = containos::hash32(filename, 1);
+    ResourceMap::iterator it = m_resources.find(id);
+    if(it != m_resources.end()) {
+        ++(it->m_refCount);
+        return *it;
+    }
+
+    //containos::Ref<fileos::FileIn> stream = fileos::FileIn::open(filename);
+
+
+    typeid_t* typeID = 0; // TODO
+    ResourceTypeMap::const_iterator typeIt = m_resourceTypes.find(typeID);
+    if(typeIt == m_resourceTypes.end())
+        return nullptr;
+    
+    Resource* resource = static_cast<Resource*>(typeIt->construct());
+    resource->m_id = id;
+    resource->m_state = ResourceState::resourcestate_pending;
+    resource->m_refCount = 1;
+    //resource->load(*this, *stream);
+    m_resources.insert(id, resource);
+    return resource;
+}
+
 bool ResourceManager::unacquireResource(Resource* resource)
 {
-    resource;
+    if(resource == nullptr)
+        return false;
+    
+    if(m_resources.find(resource->id()) == m_resources.end())
+        return false;
+    
+    --(resource->m_refCount);
+    if(resource->m_refCount > 0)
+        return false;
+
+    m_resources.remove(resource->id());
+    containos_placement_delete(resource, Resource);
+    containos::Mallocator::dealloc(resource);
     return false;
 }
 
 bool ResourceManager::hasPendingWork() const
 {
     return m_pending.size() > 0;
+}
+
+void ResourceManager::registerResourceType(const reflectos::TypeInfo* typeinfo)
+{
+    fileos_assert(typeinfo != nullptr);
+    fileos_assert(typeinfo->isDerivedFrom<Resource>());
+    m_resourceTypes.insert(typeinfo->id(), typeinfo);
 }
 
 } // end of fileos

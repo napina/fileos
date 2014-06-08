@@ -32,35 +32,42 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
-typedef uint32_t resourceid_t;
 class ResourceManager;
+
+enum ResourceState {
+    resourcestate_notready = 0,
+    resourcestate_pending,
+    resourcestate_processing,
+    resourcestate_ready,
+    resourcestate_freeing
+};
 
 class Resource
 {
 public:
-    enum State {
-        state_notready = 0,
-        state_pending,
-        state_processing,
-        state_ready
-    };
-
-    Resource();
     virtual ~Resource();
 
-    virtual bool load(ResourceManager& manager, StreamIn& stream) = 0;
-
-    State state() const;
+    ResourceState state() const;
     resourceid_t id() const;
 
 protected:
+    Resource();
+    virtual bool load(ResourceManager& manager, StreamIn& stream) = 0;
+
     friend class ResourceManager;
     resourceid_t m_id;
-    uint32_t m_state : 16;
-    REF_STORAGE_BITS(Resource,uint32_t,16);
+    uint32_t m_state;
+    REF_STORAGE(Resource,uint32_t);
+    uint32_t m_reserved;
+
+    REFLECT_BASE_CLASS(Resource)
+        REFLECT_FUNCTION(state)
+        REFLECT_FUNCTION(id)
+    REFLECT_END()
 
 public:
-    containos::Event<void(Resource*)> onLoaded;
+    //containos::Event<void(Resource*)> onLoaded;
+    //containos::Event<void(Resource*)> onLoaded;
 };
 
 } // end of fileos

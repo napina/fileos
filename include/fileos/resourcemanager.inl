@@ -26,25 +26,21 @@ IN THE SOFTWARE.
 #define fileos_resourcemanager_inl
 
 #include "fileos/filein.h"
+#include "reflectos.h"
 
 namespace fileos {
 
 template<typename T>
-inline T* ResourceManager::acquireResource(utf8_t const* filename, size_t)
+inline T* ResourceManager::acquireResourceAs(utf16_t const* filename, size_t cost)
 {
-    resourceid_t id = c::hash32(filename);
-    ResourceMap::iterator ite = m_resources.find(id);
-    if(ite != m_resources.end())
-        return static_cast<T*>(*ite);
+    Resource* resource = acquireResource(filename, cost);
+    fileos_assert(resource->getTypeInfo()->id() == reflectos::type_inspect<T>::id());
+    return static_cast<T*>(resource);
+}
 
-    c::Ref<f::StreamIn> stream = f::FileIn::open(filename);
-    T* resource = k_new(T)();
-    resource->m_id = id;
-    resource->m_state = Resource::state_pending;
-    resource->load(*this, *stream);
-    m_resources.insert(id, resource);
-    m_filenames.insert(id, filename);
-    return resource;
+template<typename T> void registerResourceType()
+{
+    registerResourceType(reflectos::type_inspect<T>::type());
 }
 
 } // end of fileos
