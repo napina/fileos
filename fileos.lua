@@ -5,9 +5,10 @@ project "fileos"
 	files { 
 		"include/**.h",
 		"include/**.inl",
+		"src/*.h",
 		"src/*.cpp",
 	}
-	includedirs { "include", "../containos/include" }
+	includedirs { "include", "../containos/include", "../reflectos/include" }
 	objdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
 	targetdir "lib"
