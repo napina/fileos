@@ -22,11 +22,7 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 //#include "stdafx.h"
-#define _CRT_SECURE_NO_WARNINGS
 #include "fileos/path.h"
-#include <wchar.h>
-#include <string.h>
-//#include <locale>
 
 namespace fileos {
 
@@ -136,42 +132,51 @@ void Path::fixSlashes()
 void Path::trimFolders()
 {
     uint8_t const* folders[32];
-    uint32_t folderDots = 0;
-    uint32_t folderDotDots = 0;
     size_t folderCount = 0;
 
-    // Two passes. In first pass gather folder offsets.
-    uint8_t const* folderPtr = m_buffer.data();
+    // Two passes. In first pass gather folders and get rid of .
     uint8_t const* ptr = m_buffer.data();
     uint8_t const* end = ptr + m_buffer.dataCount();
+    folders[folderCount++] = ptr;
     while(ptr != end) {
         if(*ptr++ != '/')
             continue;
 
-        folders[folderCount] = folderPtr;
-        if(folderPtr[0] == '.') {
-            if(folderPtr[1] == '.' && folderPtr[2] == '/') {
-                folderDotDots |= 1 << folderCount;
-            } else if(folderPtr[1] == '/') {
-                folderDots |= 1 << folderCount;
-            }
+        if((ptr[0] != '.') || (ptr[1] != '/')) {
+            folders[folderCount++] = ptr;
         }
-        ++folderCount;
-        folderPtr = ptr;
     }
-    folders[folderCount] = folderPtr;
-
-    // no need to do anything if less than 2 folders
-    if(folderCount < 2)
-        return;
 
     // Then remove folder that are ..
-    for(size_t i = 1; i < folderCount; ++i) {
-        const uint32_t mask = 1 << i;
-        if((folderDotDots & mask) != 0) {
-            // TODO
+    for(size_t i = 0; i < folderCount - 1;) {
+        uint8_t const* folder = folders[i++];
+        uint8_t const* nextFolder = folders[i];
+        if(nextFolder[0] != '.' || nextFolder[1] != '.' || nextFolder[2] != '/')
+            continue;
+        if(folder[0] != '.' || folder[1] != '.' || folder[2] != '/') {
+            // next is .. and this is actual folder. move end and go back one
+            --i;
+            memcpy(&folders[i], &folders[i+2], sizeof(uint8_t const*) * (folderCount-i-2));
+            folderCount -= 2;
+            if(i > 0)
+                --i;
         }
     }
+
+    // combine result
+    uint8_t result[1024];
+    uint8_t* writePtr = result;
+    for(size_t i = 0; i < folderCount; ++i) {
+        uint8_t const* folder = folders[i];
+        while(*folder != 0) {
+            uint8_t ch = *folder++;
+            *writePtr++ = ch;
+            if(ch == '/')
+                break;
+        }
+    }
+    *writePtr = 0;
+    m_buffer.set((uint8_t const*)result);
 }
 
 } // end of fileos

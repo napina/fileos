@@ -67,6 +67,13 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path, "folder/test.foo");
     }
 
+    TEST(TrimFoldersComplex)
+    {
+        f::Path path("folder/.\\remove\\remove2/..\\./.././remove3\\../test.foo");
+        path.trimFolders();
+        EXPECT_EQUAL(path, "folder/test.foo");
+    }
+
     TEST(Drive)
     {
         f::Path path("foobar:file.foo");
