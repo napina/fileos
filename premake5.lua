@@ -6,5 +6,6 @@ solution "fileos"
 
 	include "fileos.lua"
 	include "fileos_unittest.lua"
+	include "../containos/containos.lua"
 	include "../containos/containos_unittest.lua"
 	include "../unitos/unitos.lua"

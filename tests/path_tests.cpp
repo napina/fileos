@@ -26,36 +26,57 @@ IN THE SOFTWARE.
 
 namespace f = fileos;
 
+namespace unitos {
+template<>
+String toString(f::Path const& path)
+{
+    unitos::String result(path.length()*2);
+    result << (char const*)path.data();
+    result.terminate();
+    return result;
+}
+
+template<>
+String toString(containos::Utf8 const& str)
+{
+    unitos::String result(str.dataCount() + 1);
+    result << (char const*)str.data();
+    result.terminate();
+    return result;
+}
+}
+
 TEST_SUITE(Path)
 {
     TEST(Invalid)
     {
         f::Path path;
-        //EXPECT_NULL(path.c_str());
+        EXPECT_NULL(path.data());
     }
 
     TEST(ConvertSlashes)
     {
         f::Path path("folder\\test.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/test.foo");
+        EXPECT_EQUAL(path, "folder/test.foo");
     }
 
     TEST(TrimFolders)
     {
-        f::Path path("folder/folder2/../test.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/test.foo");
+        f::Path path("folder/.\\folder2/../test.foo");
+        path.trimFolders();
+        EXPECT_EQUAL(path, "folder/test.foo");
     }
 
-    /*TEST(Drive)
+    TEST(Drive)
     {
         f::Path path("foobar:file.foo");
         EXPECT_EQUAL(path.drive(), "foobar");
         EXPECT_EQUAL(path.filename(), "file.foo");
-    }*/
+    }
 
     TEST(Filename)
     {
-        f::Path path("folder/test.foobar");
+        f::Path path("test:folder/test.foobar");
         EXPECT_EQUAL(path.filename(), "test.foobar");
     }
 
@@ -73,28 +94,29 @@ TEST_SUITE(Path)
 
     TEST(FolderHasDot)
     {
-        f::Path path("../test");
+        f::Path path("../.tests/foo");
         EXPECT_EQUAL(path.extension(), "");
     }
 
     TEST(NoFixPath)
     {
         f::Path path("../../test");
-        EXPECT_EQUAL(path.c_str(), "../../test");
+        EXPECT_EQUAL(path, "../../test");
     }
 
     TEST(AutoFixPath)
     {
         f::Path path("/folder\\test.foobar\\");
-        EXPECT_EQUAL(path.c_str(), "folder/test.foobar");
+        EXPECT_EQUAL(path, "folder/test.foobar");
     }
 
     TEST(Parent)
     {
         f::Path path("nakki/makkara/test.foobar");
-        EXPECT_EQUAL(path.parent().c_str(), "nakki/makkara");
+        f::Path parent = path.parent();
+        EXPECT_EQUAL(parent, "nakki/makkara");
     }
-
+#if 0
     TEST(Catenate)
     {
         f::Path path;
@@ -129,4 +151,5 @@ TEST_SUITE(Path)
         path.catenate("/folder/", "/");
         EXPECT_EQUAL(path.c_str(), "folder");
     }
+#endif
 }

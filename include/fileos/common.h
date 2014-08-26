@@ -28,15 +28,19 @@ IN THE SOFTWARE.
 #if defined(__linux__) && defined(__ELF__)
 #   define FILEOS_LINUX
 #   define FILEOS_ARCH32
+#   define FILEOS_WCHAR_IS uint32_t
 #elif defined(__APPLE__) && defined(__MACH__)
 #   define FILEOS_MACOSX
 #   define FILEOS_ARCH32
+#   define FILEOS_WCHAR_IS uint32_t
 #elif defined(_WIN64) || defined(_M_X64)
 #   define FILEOS_WINDOWS
 #   define FILEOS_ARCH64
+#   define FILEOS_WCHAR_IS uint16_t
 #elif defined(_WIN32) || defined(_M_IX86)
 #   define FILEOS_WINDOWS
 #   define FILEOS_ARCH32
+#   define FILEOS_WCHAR_IS uint16_t
 #endif
 
 #define fileos_tostring_impl(x)     #x
@@ -60,10 +64,6 @@ IN THE SOFTWARE.
 #ifndef fileos_assert
 #define fileos_assert(Test)
 #endif
-
-#ifndef fileos_strlen
-#define fileos_strlen(Str)          ::_mbstrlen_l(Str, nullptr)
-#endif
 //----------------------------------------------------------------------------
 
 namespace fileos {
@@ -71,15 +71,10 @@ namespace fileos {
 typedef signed short        int16_t;
 typedef signed int          int32_t;
 typedef signed long long    int64_t;
+typedef unsigned char       uint8_t;
 typedef unsigned short      uint16_t;
 typedef unsigned int        uint32_t;
 typedef unsigned long long  uint64_t;
-#if defined(_MSC_VER)
-typedef wchar_t             utf16_t;
-#else
-typedef signed short        utf16_t;
-#endif
-typedef signed int          utf32_t;
 typedef uint32_t            resourceid_t;
 typedef uint32_t            typeid_t;
 

@@ -7,7 +7,7 @@ project "fileos_unittest"
 		"tests/*.cpp",
 	}
 	includedirs { "include", "../containos/include", "../reflectos/include", "../unitos/include" }
-	links { "fileos", "unitos" }
+	links { "containos", "fileos", "unitos" }
 	objdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
 	targetdir( "build/" .. _ACTION )

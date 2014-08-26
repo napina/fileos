@@ -26,10 +26,11 @@ IN THE SOFTWARE.
 #include "fileos/path.h"
 #include <wchar.h>
 #include <string.h>
+//#include <locale>
 
 namespace fileos {
 
-void trimEndSlashes(utf8_t const*& str, size_t& length)
+void trimEndSlashes(uint16_t const*& str, size_t& length)
 {
     if(length == 0)
         return;
@@ -47,89 +48,64 @@ void trimEndSlashes(utf8_t const*& str, size_t& length)
         --length;
 }
 
-size_t computeMultiByteLength(wchar_t const* str, size_t charCount)
+Path::Path(containos::Utf8 const& buffer)
+    : m_buffer(buffer)
 {
-    size_t resultCount = 0;
-    mbstate_t state;
-    char buffer[4];
-    ::mbrlen(nullptr, 0, &state);
-    for(size_t i = 0; i < charCount; ++i) {
-        size_t count = ::wcrtomb(buffer, str[i], &state);
-        if(count > 4)
-            break;
-        resultCount += count;
-    }
-    return resultCount;
-}
-
-Path::Path()
-    : m_buffer(nullptr)
-{
-}
-
-Path::Path(utf8_t const* path)
-    : m_buffer(nullptr)
-{
-    construct(path, fileos_strlen(path));
-}
-
-Path::Path(utf8_t const* path, size_t length)
-    : m_buffer(nullptr)
-{
-    construct(path, length);
-}
-
-Path::Path(Path const& other)
-    : m_buffer(other.m_buffer)
-{
-    if(m_buffer) {
-        ++(m_buffer->m_refCount);
-    }
-}
-
-Path::Path(wchar_t const* path)
-    : m_buffer(nullptr)
-{
-    construct(path, ::wcslen(path));
-}
-
-Path::Path(wchar_t const* path, size_t length)
-    : m_buffer(nullptr)
-{
-    construct(path, length);
 }
 
 Path::~Path()
 {
-    destruct();
+}
+
+void Path::reserve(size_t capasity)
+{
+    m_buffer.reserve(capasity);
 }
 
 Path Path::parent() const
 {
-    utf8_t const* str = ::strrchr(m_buffer->m_data, '/');
-    if(str == nullptr)
-        return Path("");
-    Path result;
-    result.construct(m_buffer->m_data, ptrdiff_t(str) - ptrdiff_t(m_buffer->m_data));
-    return result;
+    containos::Utf8::const_iterator it = m_buffer.findLast('/');
+    if(it != m_buffer.end()) {
+        return Path(m_buffer.slice(it));
+    }
+    return Path("");
 }
 
-utf8_t const* Path::filename() const
+containos::Utf8Slice Path::drive() const
 {
-    utf8_t const* result = ::strrchr(m_buffer->m_data, '/');
-    if(result == nullptr)
-        return "";
-    return ++result;
+    containos::Utf8::const_iterator it = m_buffer.findFirst(':');
+    if(it != m_buffer.end()) {
+        return m_buffer.slice(m_buffer.begin(), it);
+    }
+    return m_buffer.slice(m_buffer.begin(), m_buffer.begin());
 }
 
-utf8_t const* Path::extension() const
+containos::Utf8Slice Path::filename() const
 {
-    utf8_t const* result = ::strrchr(m_buffer->m_data, '.');
-    if(result == nullptr)
-        return "";
-    if(result[1] == '/')
-        return "";
-    return ++result;
+    containos::Utf8::const_iterator it = m_buffer.findLast('/');
+    if(it != m_buffer.end()) {
+        ++it;
+        return m_buffer.slice(it, m_buffer.end());
+    }
+    it = m_buffer.findFirst(':');
+    if(it != m_buffer.end()) {
+        ++it;
+        return m_buffer.slice(it, m_buffer.end());
+    }
+    return m_buffer.slice();
+}
+
+containos::Utf8Slice Path::extension() const
+{
+    containos::Utf8::const_iterator it = m_buffer.findLast('/');
+    if(it != m_buffer.end()) {
+        it = m_buffer.findLast(it, '.');
+        if(it != m_buffer.end()) {
+            ++it;
+            return m_buffer.slice(it, m_buffer.end());
+        }
+    }
+    return m_buffer.slice(it, it);
 }
 
 Path Path::relativeTo(Path const& base) const
@@ -139,105 +115,63 @@ Path Path::relativeTo(Path const& base) const
     return *this;
 }
 
-void Path::construct(utf8_t const* str, size_t length)
+void Path::fixSlashes()
 {
-    fileos_assert(m_buffer == nullptr);
-    trimEndSlashes(str, length);
+    // change slashes
+    m_buffer.replace('\\', '/');
 
-    m_buffer = (Buffer*)::malloc(length + sizeof(Buffer));
-    ::memcpy(m_buffer->m_data, str, length);
-    m_buffer->m_data[length] = 0;
+    Utf8Slice slice = m_buffer.slice();
 
-    m_buffer->m_length = uint32_t(length);
-    m_buffer->m_refCount = 1;
+    // trim begin slashes
+    while(*slice.m_begin == '/')
+        ++slice.m_begin;
+    
+    // trim end slashes
+    while(slice.m_end[-1] == '/')
+        --slice.m_end;
 
-    changeSlashes();
-    trimFolders();
-}
-
-void Path::construct(utf8_t const* a, size_t aLength, utf8_t const* b, size_t bLength)
-{
-    fileos_assert(m_buffer == nullptr);
-    trimEndSlashes(a, aLength);
-    trimEndSlashes(b, bLength);
-
-    if(aLength == 0) {
-        construct(b, bLength);
-    } else if(bLength == 0) {
-        construct(a, aLength);
-    } else {
-        uint32_t newLength = uint32_t(aLength + 1 + bLength);
-        m_buffer = (Buffer*)::malloc(newLength + sizeof(Buffer));
-
-        ::memcpy(m_buffer->m_data, a, aLength);
-        m_buffer->m_data[aLength] = '/';
-        ::memcpy(m_buffer->m_data + aLength + 1, b, bLength);
-        m_buffer->m_data[newLength] = 0;
-
-        m_buffer->m_length = uint32_t(newLength);
-        m_buffer->m_refCount = 1;
-
-        changeSlashes();
-        trimFolders();
-    }
-}
-
-void Path::construct(wchar_t const* str, size_t length)
-{
-    fileos_assert(m_buffer == nullptr);
-
-    size_t bufferSize = computeMultiByteLength(str, length);
-    m_buffer = (Buffer*)::malloc(bufferSize + sizeof(Buffer));
-    ::wcsrtombs(m_buffer->m_data, &str, length, nullptr);
-    m_buffer->m_data[bufferSize] = 0;
-
-    m_buffer->m_length = uint32_t(length);
-    m_buffer->m_refCount = 1;
-
-    changeSlashes();
-    trimFolders();
-}
-
-void Path::destruct()
-{
-    if(m_buffer == nullptr)
-        return;
-
-    --m_buffer->m_refCount;
-    if(m_buffer->m_refCount != 0)
-        return;
-
-    ::free(m_buffer);
-    m_buffer = nullptr;
-}
-
-void Path::changeSlashes()
-{
-    utf8_t* str = ::strchr(m_buffer->m_data, '\\');
-    while(str != nullptr) {
-        *str = '/';
-        str = ::strchr(str, '\\');
-    }
+    m_buffer.trim(slice);
 }
 
 void Path::trimFolders()
 {
-    utf8_t* dirStr = ::strstr(m_buffer->m_data, "/../");
-    if(dirStr == nullptr)
-        return;
+    uint8_t const* folders[32];
+    uint32_t folderDots = 0;
+    uint32_t folderDotDots = 0;
+    size_t folderCount = 0;
 
-    (*dirStr) = 0;
-    utf8_t* prevStr = ::strrchr(m_buffer->m_data, '/');
-    if(prevStr == nullptr) {
-        fileos_todo("fix folder trimming with multiple ..");
-        (*dirStr) = '/';
-        return;
+    // Two passes. In first pass gather folder offsets.
+    uint8_t const* folderPtr = m_buffer.data();
+    uint8_t const* ptr = m_buffer.data();
+    uint8_t const* end = ptr + m_buffer.dataCount();
+    while(ptr != end) {
+        if(*ptr++ != '/')
+            continue;
+
+        folders[folderCount] = folderPtr;
+        if(folderPtr[0] == '.') {
+            if(folderPtr[1] == '.' && folderPtr[2] == '/') {
+                folderDotDots |= 1 << folderCount;
+            } else if(folderPtr[1] == '/') {
+                folderDots |= 1 << folderCount;
+            }
+        }
+        ++folderCount;
+        folderPtr = ptr;
     }
+    folders[folderCount] = folderPtr;
 
-    ::memcpy(prevStr, dirStr + 3, m_buffer->m_length - ptrdiff_t(dirStr - m_buffer->m_data) + 2);
-    m_buffer->m_length = uint32_t(fileos_strlen(m_buffer->m_data));
+    // no need to do anything if less than 2 folders
+    if(folderCount < 2)
+        return;
 
-    trimFolders();
+    // Then remove folder that are ..
+    for(size_t i = 1; i < folderCount; ++i) {
+        const uint32_t mask = 1 << i;
+        if((folderDotDots & mask) != 0) {
+            // TODO
+        }
+    }
 }
 
 } // end of fileos

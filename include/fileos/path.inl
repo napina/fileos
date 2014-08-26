@@ -25,83 +25,112 @@ IN THE SOFTWARE.
 #ifndef fileos_path_inl
 #define fileos_path_inl
 
-#include <stdlib.h> // TODO get rid of this
-
 namespace fileos {
 
-struct Path::Buffer
+__forceinline Path::Path()
+    : m_buffer()
 {
-    uint32_t m_refCount;
-    uint32_t m_length;
-    utf16_t m_data[4];
-};
+}
 
-__forceinline utf16_t const* Path::c_str() const
+__forceinline Path::Path(Path const& other)
+    : m_buffer(other.m_buffer)
 {
-    return m_buffer->m_data;
+}
+
+__forceinline Path::Path(char const* path)
+    : m_buffer(path)
+{
+    fixSlashes();
+}
+
+__forceinline Path::Path(char const* path, size_t length)
+    : m_buffer(path, length)
+{
+    fixSlashes();
+}
+
+__forceinline Path::Path(wchar_t const* path)
+    : m_buffer(path)
+{
+    fixSlashes();
+}
+
+__forceinline Path::Path(wchar_t const* path, size_t length)
+    : m_buffer(path, length)
+{
+    fixSlashes();
+}
+
+template<size_t Count>
+__forceinline Path::Path(char const (&str)[Count])
+    : m_buffer(str)
+{
+    fixSlashes();
+}
+
+template<size_t Count>
+__forceinline Path::Path(wchar_t const (&str)[Count])
+    : m_buffer(str)
+{
+    fixSlashes();
+}
+
+__forceinline void Path::set(Path const& other)
+{
+    m_buffer = other.m_buffer;
+}
+
+template<typename T>
+__forceinline void Path::set(T const* path)
+{
+    m_buffer.set(path);
+    fixSlashes();
+}
+
+template<typename T>
+__forceinline void Path::set(T const* path, size_t count)
+{
+    m_buffer.set(path, count);
+    fixSlashes();
+}
+
+template<typename T>
+__forceinline void Path::append(T const* str)
+{
+    m_buffer.append(str);
+    fixSlashes();
+}
+
+template<typename T>
+__forceinline void Path::append(T const* str, size_t count)
+{
+    m_buffer.append(str, count);
+    fixSlashes();
+}
+
+__forceinline uint8_t const* Path::data() const
+{
+    return m_buffer.data();
 }
 
 __forceinline size_t Path::length() const
 {
-    return m_buffer->m_length;
+    return m_buffer.length();
 }
 
-__forceinline Path const& Path::operator=(Path const& path)
+__forceinline bool Path::operator==(Path const& other) const
 {
-    destruct();
-    m_buffer = path.m_buffer;
-    if(m_buffer != nullptr)
-        ++(m_buffer->m_refCount);
-    return *this;
+    return m_buffer == other.m_buffer;
 }
 
-__forceinline Path const& Path::catenate(Path const& a, Path const& b)
+__forceinline bool Path::operator==(char const* str) const
 {
-    destruct();
-    construct(a.m_buffer->m_data, a.m_buffer->m_length, b.m_buffer->m_data, b.m_buffer->m_length);
-    return *this;
+    return m_buffer == str;
 }
 
-__forceinline Path const& Path::catenate(Path const& a, utf8_t const* b)
+__forceinline bool Path::operator==(wchar_t const* str) const
 {
-    destruct();
-    construct(a.m_buffer->m_data, a.m_buffer->m_length, b, fileos_strlen(b));
-    return *this;
-}
-
-__forceinline Path const& Path::catenate(utf8_t const* a, Path const& b)
-{
-    destruct();
-    construct(a, fileos_strlen(a), b.m_buffer->m_data, b.m_buffer->m_length);
-    return *this;
-}
-
-__forceinline Path const& Path::catenate(utf8_t const* a, utf8_t const* b)
-{
-    destruct();
-    construct(a, fileos_strlen(a), b, fileos_strlen(b));
-    return *this;
-}
-
-__forceinline Path catenate(Path const& a, Path const& b)
-{
-    Path path;
-    path.construct(a.m_buffer->m_data, a.m_buffer->m_length, b.m_buffer->m_data, b.m_buffer->m_length);
-    return path;
-}
-
-__forceinline Path catenate(Path const& a, utf8_t const* b)
-{
-    Path path;
-    path.construct(a.m_buffer->m_data, a.m_buffer->m_length, b, fileos_strlen(b));
-    return path;
-}
-
-__forceinline Path catenate(utf8_t const* a, Path const& b)
-{
-    Path path;
-    path.construct(a, fileos_strlen(a), b.m_buffer->m_data, b.m_buffer->m_length);
-    return path;
+    return m_buffer == str;
 }
 
 } // end of fileos

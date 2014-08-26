@@ -26,56 +26,60 @@ IN THE SOFTWARE.
 #define fileos_path_h
 
 #include "fileos/common.h"
+#include "containos/utf8.h"
 
 namespace fileos {
 
 class Path
 {
 public:
+    typedef containos::Utf8 Utf8;
+    typedef containos::Utf8Slice Utf8Slice;
+
     Path();
-    explicit Path(char const* path);
-    explicit Path(char const* path, size_t aLength);
-    explicit Path(utf16_t const* path);
-    explicit Path(utf16_t const* path, size_t aLength);
-    explicit Path(utf32_t const* path);
-    explicit Path(utf32_t const* path, size_t aLength);
     Path(Path const& other);
+    explicit Path(char const* path);
+    explicit Path(char const* path, size_t length);
+    explicit Path(wchar_t const* path);
+    explicit Path(wchar_t const* path, size_t length);
+    template<size_t Count> Path(char const (&str)[Count]);
+    template<size_t Count> Path(wchar_t const (&str)[Count]);
     ~Path();
 
-    Path const& operator=(Path const& path);
-    Path const& catenate(Path const& a, Path const& b);
-    Path const& catenate(Path const& a, char const* b);
-    Path const& catenate(char const* a, Path const& b);
-    Path const& catenate(char const* a, char const* b);
+    void reserve(size_t capasity);
 
-    //Path drive() const;
+    void set(Path const& path);
+    template<typename T> void set(T const* path);
+    template<typename T> void set(T const* path, size_t count);
+
+    void append(Path const& path);
+    template<typename T> void append(T const* path);
+    template<typename T> void append(T const* path, size_t count);
+
+    void trimFolders();
+
     Path parent() const;
-    utf16_t const* filename() const;
-    utf16_t const* extension() const;
-    utf16_t const* c_str() const;
+    Utf8Slice drive() const;
+    Utf8Slice filename() const;
+    Utf8Slice extension() const;
+    uint8_t const* data() const;
     size_t length() const;
+
+    bool operator==(Path const& other) const;
+    bool operator==(char const* str) const;
+    bool operator==(wchar_t const* str) const;
 
     Path relativeTo(Path const& base) const;
 
-    // friends
-    friend Path catenate(Path const& a, Path const& b);
-    friend Path catenate(Path const& a, char const* b);
-    friend Path catenate(char const* a, Path const& b);
-
 private:
-    void construct(char const* a, size_t aLength);
-    void construct(char const* a, size_t aLength, char const* b, size_t bLength);
-    void construct(wchar_t const* str, size_t strLength);
-    void destruct();
-    void changeSlashes();
-    void trimFolders();
+    Path(Utf8 const& buffer);
+    void fixSlashes();
 
-    struct Buffer;
-    Buffer* m_buffer;
+    Utf8 m_buffer;
 };
 
 } // end of fileos
 
-//#include "fileos/path.inl"
+#include "fileos/path.inl"
 
 #endif
