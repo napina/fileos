@@ -28,19 +28,15 @@ IN THE SOFTWARE.
 #if defined(__linux__) && defined(__ELF__)
 #   define FILEOS_LINUX
 #   define FILEOS_ARCH32
-#   define FILEOS_WCHAR_IS uint32_t
 #elif defined(__APPLE__) && defined(__MACH__)
 #   define FILEOS_MACOSX
 #   define FILEOS_ARCH32
-#   define FILEOS_WCHAR_IS uint32_t
 #elif defined(_WIN64) || defined(_M_X64)
 #   define FILEOS_WINDOWS
 #   define FILEOS_ARCH64
-#   define FILEOS_WCHAR_IS uint16_t
 #elif defined(_WIN32) || defined(_M_IX86)
 #   define FILEOS_WINDOWS
 #   define FILEOS_ARCH32
-#   define FILEOS_WCHAR_IS uint16_t
 #endif
 
 #define fileos_tostring_impl(x)     #x
