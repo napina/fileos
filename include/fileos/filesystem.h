@@ -42,26 +42,48 @@ enum FileOperation {
     fileoperation_deleted,
 };
 
+typedef uint32_t watch_t;
+
 class FileSystem
 {
-    typedef containos::Event<void (uint32_t id, utf16_t const* filename, FileOperation operation, FileTime& timestamp)> EventType;
+    typedef containos::Event<void (watch_t handle, Path const& filename, FileOperation operation, FileTime const& timestamp)> EventType;
 public:
     FileSystem();
     ~FileSystem();
 
-    StreamIn* openForRead(utf16_t const* filename);
-    StreamOut* openForWrite(utf16_t const* filename, bool append);
+    StreamIn* openForRead(char const* filename);
+    StreamIn* openForRead(wchar_t const* filename);
+    StreamIn* openForRead(Path const& filename);
+    StreamOut* openForWrite(char const* filename, bool append);
+    StreamOut* openForWrite(wchar_t const* filename, bool append);
+    StreamOut* openForWrite(Path const& filename, bool append);
     //-------------------------------------------------------------------------
 
-    bool fileExists(utf16_t const* filename) const;
-    bool queryInfo(utf16_t const* filename, FileInfo& info) const;
-    bool copyFile(utf16_t const* filename, utf16_t const* target);
-    bool deleteFile(utf16_t const* filename);
+    bool fileExists(char const* filename) const;
+    bool fileExists(wchar_t const* filename) const;
+    bool fileExists(Path const& filename) const;
+    bool queryInfo(char const* filename, FileInfo& info) const;
+    bool queryInfo(wchar_t const* filename, FileInfo& info) const;
+    bool queryInfo(Path const& filename, FileInfo& info) const;
+    bool pathExists(char const* path) const;
+    bool pathExists(wchar_t const* path) const;
+    bool pathExists(Path const& path) const;
     //-------------------------------------------------------------------------
 
-    bool pathExists(utf16_t const* path) const;
-    bool createPath(utf16_t const* path);
-    bool deletePath(utf16_t const* path);
+    bool copyFile(char const* filename, char const* target);
+    bool copyFile(wchar_t const* filename, wchar_t const* target);
+    bool copyFile(Path const& filename, Path const& target);
+    bool deleteFile(char const* filename);
+    bool deleteFile(wchar_t const* filename);
+    bool deleteFile(Path const& filename);
+    //-------------------------------------------------------------------------
+
+    bool createPath(char const* path);
+    bool createPath(wchar_t const* path);
+    bool createPath(Path const& path);
+    bool deletePath(char const* path);
+    bool deletePath(wchar_t const* path);
+    bool deletePath(Path const& path);
     //-------------------------------------------------------------------------
 
 //    FileIterator findFiles(utf8_t const* path, utf8_t const* filter);
@@ -69,8 +91,10 @@ public:
     //-------------------------------------------------------------------------
 
     typedef EventType::DelegateType FileModifiedCB;
-    uint32_t watchFolder(utf16_t const* path, FileModifiedCB callback, bool recursive);
-    void unwatchFolder(uint32_t id);
+    watch_t watchFolder(char const* path, FileModifiedCB callback, bool recursive);
+    watch_t watchFolder(wchar_t const* path, FileModifiedCB callback, bool recursive);
+    watch_t watchFolder(Path const&, FileModifiedCB callback, bool recursive);
+    void unwatchFolder(watch_t handle);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------
 

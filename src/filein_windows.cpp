@@ -91,7 +91,7 @@ bool FileIn::isInMemory() const
     return false;
 }
 
-FileIn* FileIn::open(utf16_t const* filename)
+FileIn* FileIn::open(wchar_t const* filename)
 {
     DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
     DWORD dwShareMode = FILE_SHARE_READ;

@@ -27,6 +27,7 @@ IN THE SOFTWARE.
 
 #include "fileos/streamout.h"
 #include "fileos/fileinfo.h"
+#include "fileos/path.h"
 
 namespace fileos {
 
@@ -42,7 +43,9 @@ public:
     virtual uint64_t position() const;
     virtual uint64_t size() const;
 
-    static FileOut* open(utf16_t const* filename, bool append);
+    static FileOut* open(char const* filename, bool append);
+    static FileOut* open(wchar_t const* filename, bool append);
+    static FileOut* open(Path const& filename, bool append);
 
 private:
     FileOut(void* handle);

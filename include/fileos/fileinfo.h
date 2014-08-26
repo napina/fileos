@@ -49,6 +49,7 @@ struct FileInfo
     uint32_t isReadOnly : 1;
     uint32_t isHidden : 1;
     uint32_t isTemporary : 1;
+    uint32_t isDeleted : 1;
 };
 
 } // end of fileos

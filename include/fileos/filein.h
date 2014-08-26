@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #define fileos_filein_h
 
 #include "fileos/streamin.h"
+#include "fileos/path.h"
 
 namespace fileos {
 
@@ -43,7 +44,9 @@ public:
     virtual bool canSeek() const;
     virtual bool isInMemory() const;
 
-    static FileIn* open(utf16_t const* filename);
+    static FileIn* open(char const* filename);
+    static FileIn* open(wchar_t const* filename);
+    static FileIn* open(Path const& filename);
 
 private:
     FileIn(void* handle);

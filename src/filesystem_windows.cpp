@@ -62,7 +62,7 @@ namespace fileos {
 
 struct FileSystem::WatchInfo
 {
-    WatchInfo(utf16_t const* path, bool recursive)
+    WatchInfo(wchar_t const* path, bool recursive)
     {
         m_handle = ::CreateFileW(path, FILE_LIST_DIRECTORY,
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
@@ -190,23 +190,69 @@ FileSystem::~FileSystem()
     }
 }
 
-StreamIn* FileSystem::openForRead(utf16_t const* filename)
+StreamIn* FileSystem::openForRead(char const* filename)
 {
     return FileIn::open(filename);
 }
 
-StreamOut* FileSystem::openForWrite(utf16_t const* filename, bool append)
+StreamIn* FileSystem::openForRead(wchar_t const* filename)
+{
+    return FileIn::open(filename);
+}
+
+StreamIn* FileSystem::openForRead(Path const& filename)
+{
+    return FileIn::open(filename);
+}
+
+StreamOut* FileSystem::openForWrite(char const* filename, bool append)
 {
     return FileOut::open(filename, append);
 }
 
-bool FileSystem::fileExists(utf16_t const* filename) const
+StreamOut* FileSystem::openForWrite(wchar_t const* filename, bool append)
+{
+    return FileOut::open(filename, append);
+}
+
+StreamOut* FileSystem::openForWrite(Path const& filename, bool append)
+{
+    return FileOut::open(filename, append);
+}
+
+bool FileSystem::fileExists(char const* filename) const
+{
+    DWORD dwAttrib = ::GetFileAttributesA(filename);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
+}
+
+bool FileSystem::fileExists(wchar_t const* filename) const
 {
     DWORD dwAttrib = ::GetFileAttributesW(filename);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0);
 }
 
-bool FileSystem::queryInfo(utf16_t const* filename, FileInfo& info) const
+bool FileSystem::fileExists(Path const& filename) const
+{
+    return fileExists(reinterpret_cast<wchar_t const*>(filename.data()));
+}
+
+bool FileSystem::queryInfo(char const* filename, FileInfo& info) const
+{
+    WIN32_FILE_ATTRIBUTE_DATA fileInformation;
+    if(::GetFileAttributesExA(filename, GetFileExInfoStandard, &fileInformation) == FALSE)
+        return false;
+    convertTime(fileInformation.ftCreationTime, info.created);
+    convertTime(fileInformation.ftLastWriteTime, info.lastWrite);
+    info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
+    info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
+    info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+    info.isTemporary = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
+    info.isDeleted = false;
+    return true;
+}
+
+bool FileSystem::queryInfo(wchar_t const* filename, FileInfo& info) const
 {
     WIN32_FILE_ATTRIBUTE_DATA fileInformation;
     if(::GetFileAttributesExW(filename, GetFileExInfoStandard, &fileInformation) == FALSE)
@@ -217,10 +263,16 @@ bool FileSystem::queryInfo(utf16_t const* filename, FileInfo& info) const
     info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
     info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
     info.isTemporary = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
+    info.isDeleted = false;
     return true;
 }
 
-bool FileSystem::copyFile(utf16_t const* filename, utf16_t const* target)
+bool FileSystem::queryInfo(Path const& filename, FileInfo& info) const
+{
+    return queryInfo(reinterpret_cast<wchar_t const*>(filename.data()), info);
+}
+
+bool FileSystem::copyFile(wchar_t const* filename, wchar_t const* target)
 {
     c::Ref<StreamIn> fileIn = openForRead(filename);
     if(!fileIn.isValid())
@@ -237,25 +289,66 @@ bool FileSystem::copyFile(utf16_t const* filename, utf16_t const* target)
     return false;
 }
 
-bool FileSystem::deleteFile(utf16_t const* filename)
+bool FileSystem::deleteFile(char const* filename)
+{
+    return ::DeleteFileA(filename) != FALSE;
+}
+
+bool FileSystem::deleteFile(wchar_t const* filename)
 {
     return ::DeleteFileW(filename) != FALSE;
 }
 
-bool FileSystem::pathExists(utf16_t const* path) const
+bool FileSystem::deleteFile(Path const& filename)
+{
+    return deleteFile(reinterpret_cast<wchar_t const*>(filename.data()));
+}
+
+bool FileSystem::pathExists(char const* path) const
+{
+    DWORD dwAttrib = ::GetFileAttributesA(path);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
+}
+
+bool FileSystem::pathExists(wchar_t const* path) const
 {
     DWORD dwAttrib = ::GetFileAttributesW(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0);
 }
 
-bool FileSystem::createPath(utf16_t const* path)
+bool FileSystem::pathExists(Path const& path) const
+{
+    return pathExists(reinterpret_cast<wchar_t const*>(path.data()));
+}
+
+bool FileSystem::createPath(char const* path)
+{
+    return ::CreateDirectoryA(path, NULL) != FALSE;
+}
+
+bool FileSystem::createPath(wchar_t const* path)
 {
     return ::CreateDirectoryW(path, NULL) != FALSE;
 }
 
-bool FileSystem::deletePath(utf16_t const* path)
+bool FileSystem::createPath(Path const& path)
+{
+    return createPath(reinterpret_cast<wchar_t const*>(path.data()));
+}
+
+bool FileSystem::deletePath(char const* path)
+{
+    return ::RemoveDirectoryA(path) != FALSE;
+}
+
+bool FileSystem::deletePath(wchar_t const* path)
 {
     return ::RemoveDirectoryW(path) != FALSE;
+}
+
+bool FileSystem::deletePath(Path const& path)
+{
+    return deletePath(reinterpret_cast<wchar_t const*>(path.data()));
 }
 
 #if 0
@@ -286,10 +379,10 @@ void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFi
 }
 #endif
 
-uint32_t FileSystem::watchFolder(utf16_t const* path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(wchar_t const* path, FileModifiedCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path, recursive);
-    uint32_t id = c::hash32(path);
+    uint32_t id = c::hash32(reinterpret_cast<char const*>(path));
     watch->m_id = id;
     watch->m_callback.add(callback);
     m_watchList.insert(watch);

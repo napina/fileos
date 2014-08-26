@@ -70,7 +70,7 @@ uint64_t FileOut::size() const
     return m_size;
 }
 
-FileOut* FileOut::open(utf16_t const* filename, bool append)
+FileOut* FileOut::open(wchar_t const* filename, bool append)
 {
     DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
     DWORD dwShareMode = 0;//FILE_SHARE_READ;
