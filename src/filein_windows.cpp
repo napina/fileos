@@ -91,6 +91,20 @@ bool FileIn::isInMemory() const
     return false;
 }
 
+FileIn* FileIn::open(char const* filename)
+{
+    DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
+    DWORD dwShareMode = FILE_SHARE_READ;
+    DWORD dwCreationDisposition = OPEN_EXISTING;
+    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY;// | FILE_FLAG_NO_BUFFERING;
+    HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    if(handle == INVALID_HANDLE_VALUE) {
+        //DWORD error = ::GetLastError();
+        return nullptr;
+    }
+    return new FileIn(handle);
+}
+
 FileIn* FileIn::open(wchar_t const* filename)
 {
     DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
@@ -103,6 +117,13 @@ FileIn* FileIn::open(wchar_t const* filename)
         return nullptr;
     }
     return new FileIn(handle);
+}
+
+FileIn* FileIn::open(Path const& filename)
+{
+    filename;
+    fileos_todo("Implement Filein::open with path");
+    return nullptr;
 }
 
 } // end of namespace
