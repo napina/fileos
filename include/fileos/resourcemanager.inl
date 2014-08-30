@@ -31,16 +31,51 @@ IN THE SOFTWARE.
 namespace fileos {
 
 template<typename T>
-inline T* ResourceManager::acquireResourceAs(utf16_t const* filename, size_t cost)
+__forceinline T* ResourceManager::acquireResourceAs(uint8_t const* filename)
 {
-    Resource* resource = acquireResource(filename, cost);
+    Resource* resource = acquireResource(filename);
+    fileos_assert(resource != nullptr);
     fileos_assert(resource->getTypeInfo()->id() == reflectos::type_inspect<T>::id());
     return static_cast<T*>(resource);
 }
 
-template<typename T> void registerResourceType()
+template<typename T>
+__forceinline T* ResourceManager::acquireResourceAs(resourceid_t id)
+{
+    Resource* resource = acquireResource(id);
+    fileos_assert(resource != nullptr);
+    fileos_assert(resource->getTypeInfo()->id() == reflectos::type_inspect<T>::id());
+    return static_cast<T*>(resource);
+}
+
+template<typename T>
+__forceinline void ResourceManager::registerResourceType()
 {
     registerResourceType(reflectos::type_inspect<T>::type());
+}
+
+template<typename T>
+__forceinline void ResourceManager::registerResourceInfoType()
+{
+    registerResourceType(reflectos::type_inspect<T>::type());
+}
+
+__forceinline void ResourceManager::setRoot(char const* path)
+{
+    m_rootPath.set(path);
+    updateResourceInfos();
+}
+
+__forceinline void ResourceManager::setRoot(wchar_t const* path)
+{
+    m_rootPath.set(path);
+    updateResourceInfos();
+}
+
+__forceinline void ResourceManager::setRoot(Path const& path)
+{
+    m_rootPath.set(path);
+    updateResourceInfos();
 }
 
 } // end of fileos

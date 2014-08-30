@@ -26,8 +26,9 @@ IN THE SOFTWARE.
 #define fileos_resourcemanager_h
 
 #include "fileos/common.h"
-#include "fileos/path.h"
+#include "fileos/resourcelist.h"
 #include "fileos/filesystem.h"
+#include "fileos/path.h"
 #include "containos/hashmap.h"
 //#include "containos/ptr.h"
 //#include "reflectos.h"
@@ -39,6 +40,7 @@ namespace reflectos {
 namespace fileos {
 
 class Resource;
+class ResourceInfo;
 
 class ResourceManager
 {
@@ -48,35 +50,51 @@ public:
 
     void update();
 
-    void setRoot(utf16_t const* path);
+    void setRoot(char const* path);
+    void setRoot(wchar_t const* path);
+    void setRoot(Path const& path);
     void enableHotloading(bool enable);
     bool hasPendingWork() const;
 
-    template<typename T>
-    T* acquireResourceAs(utf16_t const* name, size_t cost);
-    Resource* acquireResource(utf16_t const* name, size_t cost);
+    template<typename T> T* acquireResourceAs(uint8_t const* name);
+    template<typename T> T* acquireResourceAs(resourceid_t id);
+    Resource* acquireResource(uint8_t const* name);
+    Resource* acquireResource(resourceid_t id);
     bool unacquireResource(Resource* resource);
 
     template<typename T>
     void registerResourceType();
     void registerResourceType(const reflectos::TypeInfo* typeinfo);
 
+    template<typename T>
+    void registerResourceInfoType();
+    void registerResourceInfoType(const reflectos::TypeInfo* typeinfo);
+
 private:
-    void FileModified(uint32_t id, utf16_t const* filename, FileOperation operation, FileTime& timestamp);
+    void updateResourceInfos();
+
+    void onFileModified(uint32_t id, Path const& filename, FileOperation operation, FileTime const& timestamp);
 
 private:
     typedef containos::HashMap<resourceid_t, Resource*> ResourceMap;
-    typedef containos::List<Resource*> ResourceList;
+    typedef containos::HashMap<resourceid_t, ResourceInfo*> ResourceInfoMap;
     ResourceMap m_resources;
-    ResourceList m_pending;
+    ResourceInfoMap m_resourceInfos;
+    
+    ResourceList m_resourcesToLoad;
+    ResourceList m_resourcesInMemory;
+    ResourceList m_resourcesToUnload;
 
     FileSystem m_fileSystem;
     Path m_rootPath;
+
+    // TODO
     uint32_t m_hotloadId;
     bool m_hotload;
 
-    typedef containos::HashMap<typeid_t,const reflectos::TypeInfo*> ResourceTypeMap;
-    ResourceTypeMap m_resourceTypes;
+    typedef containos::HashMap<typeid_t,reflectos::TypeInfo const*> TypeInfoMap;
+    TypeInfoMap m_resourceTypes;
+    TypeInfoMap m_resourceInfoTypes;
 };
 
 } // end of fileos
