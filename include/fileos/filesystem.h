@@ -86,7 +86,7 @@ public:
     bool deletePath(Path const& path);
     //-------------------------------------------------------------------------
 
-//    FileIterator findFiles(utf8_t const* path, utf8_t const* filter);
+    void findFiles(uint8_t const* path, uint8_t const* filter, containos::List<FileInfo>& foundFiles);
 //    FileIterator findDirectories(utf8_t const* path, utf8_t const* filter);
     //-------------------------------------------------------------------------
 

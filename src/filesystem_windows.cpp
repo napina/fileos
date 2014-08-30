@@ -62,6 +62,24 @@ namespace fileos {
 
 struct FileSystem::WatchInfo
 {
+    WatchInfo(char const* path, bool recursive)
+    {
+        m_handle = ::CreateFileA(path, FILE_LIST_DIRECTORY,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+            OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, NULL);
+
+        if(m_handle != INVALID_HANDLE_VALUE) {
+            ::memset(&m_overlapped, 0, sizeof(OVERLAPPED));
+            m_overlapped.hEvent = ::CreateEventA(NULL, TRUE, FALSE, NULL);
+            m_bufferOffset = 0;
+            m_filter = FILE_NOTIFY_CHANGE_CREATION | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
+            m_id = 0;
+            m_isRecursive = recursive;
+            m_isStopping = false;
+            registerCompletionRoutine(true);
+        }
+    }
+
     WatchInfo(wchar_t const* path, bool recursive)
     {
         m_handle = ::CreateFileW(path, FILE_LIST_DIRECTORY,
@@ -242,8 +260,10 @@ bool FileSystem::queryInfo(char const* filename, FileInfo& info) const
     WIN32_FILE_ATTRIBUTE_DATA fileInformation;
     if(::GetFileAttributesExA(filename, GetFileExInfoStandard, &fileInformation) == FALSE)
         return false;
-    convertTime(fileInformation.ftCreationTime, info.created);
-    convertTime(fileInformation.ftLastWriteTime, info.lastWrite);
+
+    info.filename.set(filename);
+    convertTime(fileInformation.ftCreationTime, info.createTime);
+    convertTime(fileInformation.ftLastWriteTime, info.lastWriteTime);
     info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
     info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
     info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
@@ -257,8 +277,10 @@ bool FileSystem::queryInfo(wchar_t const* filename, FileInfo& info) const
     WIN32_FILE_ATTRIBUTE_DATA fileInformation;
     if(::GetFileAttributesExW(filename, GetFileExInfoStandard, &fileInformation) == FALSE)
         return false;
-    convertTime(fileInformation.ftCreationTime, info.created);
-    convertTime(fileInformation.ftLastWriteTime, info.lastWrite);
+
+    info.filename.set(filename);
+    convertTime(fileInformation.ftCreationTime, info.createTime);
+    convertTime(fileInformation.ftLastWriteTime, info.lastWriteTime);
     info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
     info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
     info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
@@ -269,7 +291,10 @@ bool FileSystem::queryInfo(wchar_t const* filename, FileInfo& info) const
 
 bool FileSystem::queryInfo(Path const& filename, FileInfo& info) const
 {
-    return queryInfo(reinterpret_cast<wchar_t const*>(filename.data()), info);
+    filename;
+    info;
+    return false;
+    //return queryInfo(reinterpret_cast<wchar_t const*>(filename.data()), info);
 }
 
 bool FileSystem::copyFile(wchar_t const* filename, wchar_t const* target)
@@ -351,33 +376,48 @@ bool FileSystem::deletePath(Path const& path)
     return deletePath(reinterpret_cast<wchar_t const*>(path.data()));
 }
 
-#if 0
-void FileSystem::findFiles(utf8_t const* path, containos::List<utf8_t*>& foundFiles)
+void FileSystem::findFiles(uint8_t const* path, uint8_t const* filter, containos::List<FileInfo>& foundFiles)
 {
-    path;
-    foundFiles;
+    Path searchString;
+    searchString.reserve(1024);
+    searchString.append(path);
+    searchString.append(filter);
+
     WIN32_FIND_DATA findData;
-
-    Path searchString = path + "*.*";
-
-    HANDLE handle = ::FindFirstFile(searchString.c_str(), &findData);
+    HANDLE handle = ::FindFirstFileA((const char*)searchString.data(), &findData);
     if(handle == INVALID_HANDLE_VALUE)
         return;
 
-    do 
+    do
     {
-        if(findData.cFileName[0] != '.')
+        if(findData.cFileName[0] == '.')
             continue;
         if((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
             continue;
 
-        Path fullName = path + "/" + findData.cFileName;
-        foundFiles.insert(fullName.c_str());
-    } while(::FindNextFile(handle, &findData));
+        FileInfo& fileinfo = foundFiles.acquire();
+        fileinfo.filename.set(findData.cFileName);
+        convertTime(findData.ftCreationTime, fileinfo.createTime);
+        convertTime(findData.ftLastWriteTime, fileinfo.lastWriteTime);
+        fileinfo.fileSize = (uint64_t(findData.nFileSizeHigh) << 32) + findData.nFileSizeLow;
+        fileinfo.isReadOnly = (findData.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
+        fileinfo.isHidden = (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+        fileinfo.isTemporary = (findData.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
+        fileinfo.isDeleted = false;
+    } while(::FindNextFileA(handle, &findData));
 
     ::FindClose(handle);
 }
-#endif
+
+uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB callback, bool recursive)
+{
+    WatchInfo* watch = new WatchInfo(path, recursive);
+    uint32_t id = c::hash32(path);
+    watch->m_id = id;
+    watch->m_callback.add(callback);
+    m_watchList.insert(watch);
+    return id;
+}
 
 uint32_t FileSystem::watchFolder(wchar_t const* path, FileModifiedCB callback, bool recursive)
 {
@@ -387,6 +427,15 @@ uint32_t FileSystem::watchFolder(wchar_t const* path, FileModifiedCB callback, b
     watch->m_callback.add(callback);
     m_watchList.insert(watch);
     return id;
+}
+
+uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB callback, bool recursive)
+{
+    path;
+    callback;
+    recursive;
+    fileos_todo("Implement FileSystem::watchFolder with path");
+    return 0;
 }
 
 void FileSystem::unwatchFolder(uint32_t id)

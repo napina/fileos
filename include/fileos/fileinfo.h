@@ -22,10 +22,11 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #pragma once
-#ifndef fileos_filetime_h
-#define fileos_filetime_h
+#ifndef fileos_fileinfo_h
+#define fileos_fileinfo_h
 
 #include "fileos/common.h"
+#include "fileos/path.h"
 
 namespace fileos {
 
@@ -43,8 +44,9 @@ struct FileTime
 
 struct FileInfo
 {
-    FileTime created;
-    FileTime lastWrite;
+    Path filename;
+    FileTime createTime;
+    FileTime lastWriteTime;
     uint64_t fileSize;
     uint32_t isReadOnly : 1;
     uint32_t isHidden : 1;
@@ -53,5 +55,11 @@ struct FileInfo
 };
 
 } // end of fileos
+
+namespace containos {
+template<> struct allow_memcpy<fileos::FileInfo> {
+    static const bool allowed = false;
+};
+}
 
 #endif
