@@ -23,18 +23,20 @@ IN THE SOFTWARE.
 =============================================================================*/
 #pragma once
 #ifndef fileos_resource_h
-#define korppu_resource_h
+#define fileos_resource_h
 
 #include "fileos/common.h"
 #include "fileos/streamin.h"
 #include "containos/event.h"
-#include "containos/ref.h"
+#include "reflectos.h"
 
 namespace fileos {
 
 class ResourceManager;
+class ResourceList;
+class ResourceInfo;
 
-enum ResourceState {
+enum ResourceState : uint32_t {
     resourcestate_notready = 0,
     resourcestate_pending,
     resourcestate_processing,
@@ -47,27 +49,39 @@ class Resource
 public:
     virtual ~Resource();
 
-    ResourceState state() const;
+    virtual bool prepareLoad(ResourceManager& manager) = 0;
+    virtual bool load(ResourceManager& manager, StreamIn& stream) = 0;
+    virtual bool finishLoad(ResourceManager& manager) = 0;
+
+    void addReference();
+    uint32_t removeReference();
+
     resourceid_t id() const;
+    ResourceState state() const;
+    uint32_t category() const;
+
+    ResourceInfo const* info() const;
+    ResourceList const* list() const;
 
 protected:
     Resource();
-    virtual bool load(ResourceManager& manager, StreamIn& stream) = 0;
 
     friend class ResourceManager;
+
+private:
     resourceid_t m_id;
     uint32_t m_state;
-    REF_STORAGE(Resource,uint32_t);
-    uint32_t m_reserved;
+    uint32_t m_category;
+    uint32_t m_refCount;
+
+    ResourceInfo* m_info;
+    ResourceList* m_list;
 
     REFLECT_BASE_CLASS(Resource)
-        REFLECT_FUNCTION(state)
         REFLECT_FUNCTION(id)
+        REFLECT_FUNCTION(state)
+        REFLECT_FUNCTION(category)
     REFLECT_END()
-
-public:
-    //containos::Event<void(Resource*)> onLoaded;
-    //containos::Event<void(Resource*)> onLoaded;
 };
 
 } // end of fileos

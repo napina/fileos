@@ -21,37 +21,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 
 =============================================================================*/
-#pragma once
-#ifndef fileos_resource_inl
-#define fileos_resource_inl
+//#include "stdafx.h"
+#include "fileos/resource.h"
+#include "containos/atomic.h"
+
+REGISTER_CLASS(fileos::Resource, 1)
 
 namespace fileos {
 
-__forceinline ResourceState Resource::state() const
+Resource::Resource()
+    : m_id(0)
+    , m_state(resourcestate_notready)
+    , m_category(0)
+    , m_refCount(0)
+    , m_info(nullptr)
+    , m_list(nullptr)
 {
-    return ResourceState(m_state);
 }
 
-__forceinline resourceid_t Resource::id() const
+Resource::~Resource()
 {
-    return m_id;
 }
 
-__forceinline uint32_t Resource::category() const
+void Resource::addReference()
 {
-    return m_category;
+    containos::atomicInc32(m_refCount);
 }
 
-__forceinline ResourceInfo const* Resource::info() const
+uint32_t Resource::removeReference()
 {
-    return m_info;
-}
-
-__forceinline ResourceList const* Resource::list() const
-{
-    return m_list;
+    return containos::atomicDec32(m_refCount);
 }
 
 } // end of fileos
-
-#endif
