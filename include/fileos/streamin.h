@@ -52,7 +52,6 @@ public:
 
     // read shorthands (default implementation uses read())
     virtual uint32_t readLine(char* buffer, uint32_t bufferSize);
-    //virtual void readSizeString(c::String& result);
 
     template<typename T> T read();
     template<typename T> void read(T& result);

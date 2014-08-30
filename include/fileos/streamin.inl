@@ -51,13 +51,6 @@ inline uint32_t StreamIn::readLine(char* buffer, uint32_t bufferSize)
     *buf = 0;
     return readCount;
 }
-/*
-inline void StreamIn::readSizeString(c::String& result)
-{
-    size_t size = read<uint32>();
-    //result.reserve(size + 1);
-    read(const_cast<char*>(result.c_str()), size);
-}*/
 
 template<typename T>
 inline T StreamIn::read()
