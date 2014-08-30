@@ -33,14 +33,14 @@ class StreamIn;
 
 // Do specialization for supported types
 template<typename T>
-T parse(char const* str);
+T parse(uint8_t const* str);
 
 //----------------------------------------------------------------------------
 
 class MetaNode
 {
 public:
-    void setAsValue(char const* typeName, char const* name, char const* value);
+    void setAsValue(char const* typeName, char const* name, uint8_t const* value);
     void setAsList(char const* typeName, char const* name, MetaNode const* child);
     void setNext(MetaNode const* next);
 
@@ -49,7 +49,7 @@ public:
     bool hasValue() const;
     char const* typeName() const;
     char const* name() const;
-    char const* value() const;
+    uint8_t const* value() const;
     template<typename T> T valueAs() const;
     MetaNode const* next() const;
     MetaNode const* firstChild() const;
@@ -82,7 +82,7 @@ public:
 
     MetaNode const* base() const;
     MetaNode const* firstChild() const;
-    MetaNode const* findChild(const char* name) const;
+    MetaNode const* findChild(char const* name) const;
 
 private:
     char* m_buffer;

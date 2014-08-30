@@ -28,17 +28,16 @@ IN THE SOFTWARE.
 namespace fileos {
 namespace internal {
 
-template<typename T>
-__forceinline int offsetTo(T const* ptr, T const* basePtr)
+template<typename T, typename T2>
+__forceinline int32_t offsetTo(T const* ptr, T2 const* basePtr)
 {
-    uintptr_t diff = ptr - basePtr;
-    return (int)diff;
+    return int32_t(uintptr_t(ptr) - uintptr_t(basePtr)) / sizeof(T);
 }
 
 } // end of internal
 //----------------------------------------------------------------------------
 
-inline void MetaNode::setAsValue(char const* typeName, char const* name, char const* value)
+inline void MetaNode::setAsValue(char const* typeName, char const* name, uint8_t const* value)
 {
     m_type = typeName;
     m_nameOffset = internal::offsetTo(name, typeName);
@@ -86,9 +85,9 @@ __forceinline char const* MetaNode::name() const
     return m_type + m_nameOffset;
 }
 
-__forceinline char const* MetaNode::value() const
+__forceinline uint8_t const* MetaNode::value() const
 {
-    return m_type + m_valueOffset;
+    return (uint8_t const*)(m_type + m_valueOffset);
 }
 
 template<typename T>

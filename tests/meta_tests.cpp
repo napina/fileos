@@ -6,17 +6,19 @@
 #include <stdlib.h>
 #include "fileos/meta.h"
 #include "fileos/bufferin.h"
+#include "containos/utf8.h"
 
 namespace fileos {
 
 template<>
-int parse<int>(char const* str)
+int parse<int>(uint8_t const* str)
 {
-    return ::atoi(str);
+    return ::atoi((const char*)str);
 }
 
 } // end of fileos
 namespace f = fileos;
+namespace c = containos;
 
 class MetaFixture : public unitos::SuiteTest
 {
@@ -45,7 +47,6 @@ TEST_SUITE(Meta)
         f::MetaNode const* node = parser.findChild("Test");
         EXPECT_VALID(parser.findChild("Test"));
         EXPECT_EQUAL(node->typeName(), "int");
-        EXPECT_EQUAL(node->value(), "133");
         EXPECT_EQUAL(node->valueAs<int>(), 133);
     }
 
@@ -80,10 +81,8 @@ TEST_SUITE(Meta)
         f::MetaNode const* firstNode = listNode->findChild("First");
         f::MetaNode const* secondNode = listNode->findChild("Second");
         EXPECT_EQUAL(firstNode->typeName(), "int");
-        EXPECT_EQUAL(firstNode->value(), "6");
         EXPECT_EQUAL(firstNode->valueAs<int>(), 6);
         EXPECT_EQUAL(secondNode->typeName(), "int");
-        EXPECT_EQUAL(secondNode->value(), "32");
         EXPECT_EQUAL(secondNode->valueAs<int>(), 32);
     }
 
@@ -102,7 +101,6 @@ TEST_SUITE(Meta)
 
         f::MetaNode const* valueNode = listNode->findChild("Value");
         EXPECT_EQUAL(valueNode->typeName(), "int");
-        EXPECT_EQUAL(valueNode->value(), "6");
         EXPECT_EQUAL(valueNode->valueAs<int>(), 6);
     }
 
@@ -129,10 +127,8 @@ TEST_SUITE(Meta)
         f::MetaNode const* firstNode = list1Node->findChild("Value");
         f::MetaNode const* secondNode = list2Node->findChild("Value");
         EXPECT_EQUAL(firstNode->typeName(), "int");
-        EXPECT_EQUAL(firstNode->value(), "3");
         EXPECT_EQUAL(firstNode->valueAs<int>(), 3);
         EXPECT_EQUAL(secondNode->typeName(), "int");
-        EXPECT_EQUAL(secondNode->value(), "6");
         EXPECT_EQUAL(secondNode->valueAs<int>(), 6);
     }
 }

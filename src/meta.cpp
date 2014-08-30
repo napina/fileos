@@ -29,6 +29,8 @@ IN THE SOFTWARE.
 
 namespace {
 
+using fileos::uint8_t;
+
 __forceinline bool isWhitespace(char ch)
 {
     return ch <= 0x20;
@@ -70,11 +72,14 @@ __forceinline char* skipUntil(char* text, char const* end, char ch)
     return nullptr;
 }
 
+//static uint8_t s_empty[] = { 0 };
+static char const s_empty[] = "";
+
 } // end of namespace
 
 namespace fileos {
 
-MetaNode const* MetaNode::findChild(const char* name) const
+MetaNode const* MetaNode::findChild(char const* name) const
 {
     MetaNode const* node = firstChild();
     while(node != nullptr) {
@@ -89,7 +94,7 @@ MetaParser::MetaParser()
 {
     m_buffer = nullptr;
     m_nodes = new MetaNode[max_nodes];
-    m_nodes[0].setAsList("", "", nullptr);
+    m_nodes[0].setAsList(s_empty, s_empty, nullptr);
 }
 
 MetaParser::~MetaParser()
@@ -108,8 +113,9 @@ bool MetaParser::parse(StreamIn& stream)
 
 bool MetaParser::parse(char const* buffer, size_t length)
 {
-    m_buffer = new char[length];
+    m_buffer = new char[length + 1];
     ::memcpy(m_buffer, buffer, length);
+    m_buffer[length] = 0;
     return parse(m_buffer, length);
 }
 
@@ -122,7 +128,7 @@ bool MetaParser::parse(char* text, size_t length)
     char* end = curr + length;
     char const* typeName;
     char const* name;
-    char const* value;
+    uint8_t const* value;
 
     curr = ::skipWhitespace(curr, end);
 
@@ -163,7 +169,7 @@ bool MetaParser::parse(char* text, size_t length)
             nodeStack[++nodeStackIndex] = nullptr;
         } else {
             // parse as value
-            value = curr;
+            value = (uint8_t const*)curr;
             curr = ::skipUntil(curr, end, ']');
             if(curr == nullptr) return false;
             (*curr) = 0;
@@ -187,7 +193,7 @@ bool MetaParser::parse(char* text, size_t length)
     }
     // check if we had any nodes and first to be child of base
     if(nodeStack[1] != nullptr)
-        m_nodes[0].setAsList("", "", &m_nodes[1]);
+        m_nodes[0].setAsList(s_empty, s_empty, &m_nodes[1]);
     return true;
 }
 
@@ -201,7 +207,7 @@ MetaNode const* MetaParser::firstChild() const
     return base()->firstChild();
 }
 
-MetaNode const* MetaParser::findChild(const char* name) const
+MetaNode const* MetaParser::findChild(char const* name) const
 {
     return base()->findChild(name);
 }
