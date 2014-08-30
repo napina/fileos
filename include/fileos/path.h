@@ -42,8 +42,8 @@ public:
     explicit Path(char const* path, size_t length);
     explicit Path(wchar_t const* path);
     explicit Path(wchar_t const* path, size_t length);
-    template<size_t Count> Path(char const (&str)[Count]);
-    template<size_t Count> Path(wchar_t const (&str)[Count]);
+    template<size_t Count> explicit Path(char const (&str)[Count]);
+    template<size_t Count> explicit Path(wchar_t const (&str)[Count]);
     ~Path();
 
     void reserve(size_t capasity);
