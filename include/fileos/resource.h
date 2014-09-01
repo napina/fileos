@@ -52,6 +52,7 @@ public:
     virtual bool prepareLoad(ResourceManager& manager) = 0;
     virtual bool load(ResourceManager& manager, StreamIn& stream) = 0;
     virtual bool finishLoad(ResourceManager& manager) = 0;
+    virtual bool unload(ResourceManager& manager) = 0;
 
     void addReference();
     uint32_t removeReference();
