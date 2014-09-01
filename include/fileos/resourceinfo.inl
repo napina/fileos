@@ -47,6 +47,15 @@ __forceinline uint64_t ResourceInfo::fileSize() const
     return m_fileinfo.fileSize;
 }
 
+__forceinline ResourceInfo const** ResourceInfo::dependencies() const
+{
+    return m_dependencies;
+}
+__forceinline size_t ResourceInfo::dependencyCount() const
+{
+    return m_dependencyCount;
+}
+
 } // end of fileos
 
 #endif

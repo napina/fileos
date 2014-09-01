@@ -37,20 +37,26 @@ class ResourceManager;
 class ResourceInfo
 {
 public:
+    typedef containos::List<ResourceInfo*> DependencyList;
+
     ResourceInfo();
 
     virtual ~ResourceInfo() {}
 
     Path const& filename() const;
+    uint64_t fileSize() const;
     FileTime const& createTime() const;
     FileTime const& lastWriteTime() const;
-    uint64_t fileSize() const;
+    ResourceInfo const** dependencies() const;
+    size_t dependencyCount() const;
 
 private:
     friend class ResourceManager;
 
     FileInfo m_fileinfo;
     typeid_t m_resourceType;
+    ResourceInfo** m_dependencies;
+    size_t m_dependencyCount;
 
     REFLECT_BASE_CLASS(ResourceInfo)
         REFLECT_FUNCTION(fileSize)
