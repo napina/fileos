@@ -28,7 +28,7 @@ IN THE SOFTWARE.
 #include "fileos/common.h"
 #include "fileos/fileinfo.h"
 #include "fileos/path.h"
-#include "containos/event.h"
+#include "containos/delegate.h"
 #include "containos/list.h"
 
 namespace fileos {
@@ -46,7 +46,6 @@ typedef uint32_t watch_t;
 
 class FileSystem
 {
-    typedef containos::Event<void (watch_t handle, Path const& filename, FileOperation operation, FileTime const& timestamp)> EventType;
 public:
     FileSystem();
     ~FileSystem();
@@ -59,12 +58,12 @@ public:
     StreamOut* openForWrite(Path const& filename, bool append);
     //-------------------------------------------------------------------------
 
-    bool fileExists(char const* filename) const;
-    bool fileExists(wchar_t const* filename) const;
-    bool fileExists(Path const& filename) const;
     bool queryInfo(char const* filename, FileInfo& info) const;
     bool queryInfo(wchar_t const* filename, FileInfo& info) const;
     bool queryInfo(Path const& filename, FileInfo& info) const;
+    bool fileExists(char const* filename) const;
+    bool fileExists(wchar_t const* filename) const;
+    bool fileExists(Path const& filename) const;
     bool pathExists(char const* path) const;
     bool pathExists(wchar_t const* path) const;
     bool pathExists(Path const& path) const;
@@ -90,10 +89,11 @@ public:
 //    FileIterator findDirectories(utf8_t const* path, utf8_t const* filter);
     //-------------------------------------------------------------------------
 
-    typedef EventType::DelegateType FileModifiedCB;
-    watch_t watchFolder(char const* path, FileModifiedCB callback, bool recursive);
-    watch_t watchFolder(wchar_t const* path, FileModifiedCB callback, bool recursive);
-    watch_t watchFolder(Path const&, FileModifiedCB callback, bool recursive);
+    typedef containos::Delegate<void (watch_t handle, Path const& filename, FileOperation operation, FileTime const& timestamp)> FileOperationDelegate;
+    typedef FileOperationDelegate::DelegateType FileOperationCB;
+    watch_t watchFolder(char const* path, FileOperationCB callback, bool recursive);
+    watch_t watchFolder(wchar_t const* path, FileOperationCB callback, bool recursive);
+    watch_t watchFolder(Path const&, FileOperationCB callback, bool recursive);
     void unwatchFolder(watch_t handle);
     void waitForChanges(uint32_t timeoutMs);
     //-------------------------------------------------------------------------

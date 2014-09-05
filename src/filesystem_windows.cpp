@@ -22,6 +22,7 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #include "fileos/filesystem.h"
+#ifdef FILEOS_WINDOWS
 #include "fileos/fileout.h"
 #include "fileos/filein.h"
 #include "fileos/path.h"
@@ -32,20 +33,6 @@ IN THE SOFTWARE.
 namespace c = containos;
 
 namespace {
-
-/*void convertPath(char* dst, int dstLength, wchar_t const* src, int srcLength)
-{
-    int count = ::WideCharToMultiByte(
-        CP_ACP,
-        0,
-        src,
-        srcLength / sizeof(wchar_t),
-        dst,
-        dstLength,
-        NULL,
-        NULL);
-    dst[count] = 0;
-}*/
 
 fileos::FileTime getFileTime()
 {
@@ -190,7 +177,7 @@ private:
     DWORD m_filter;
     uint32_t m_id;
 
-    FileSystem::EventType m_callback;
+    FileSystem::FileOperationDelegate m_callback;
 
     bool m_isRecursive;
     bool m_isStopping;
@@ -252,7 +239,9 @@ bool FileSystem::fileExists(wchar_t const* filename) const
 
 bool FileSystem::fileExists(Path const& filename) const
 {
-    return fileExists(reinterpret_cast<wchar_t const*>(filename.data()));
+    wchar_t buffer[1024];
+    filename.convertTo(buffer, 1024);
+    return fileExists(buffer);
 }
 
 bool FileSystem::queryInfo(char const* filename, FileInfo& info) const
@@ -291,10 +280,9 @@ bool FileSystem::queryInfo(wchar_t const* filename, FileInfo& info) const
 
 bool FileSystem::queryInfo(Path const& filename, FileInfo& info) const
 {
-    filename;
-    info;
-    return false;
-    //return queryInfo(reinterpret_cast<wchar_t const*>(filename.data()), info);
+    wchar_t buffer[1024];
+    filename.convertTo(buffer, 1024);
+    return queryInfo(buffer, info);
 }
 
 bool FileSystem::copyFile(wchar_t const* filename, wchar_t const* target)
@@ -326,7 +314,9 @@ bool FileSystem::deleteFile(wchar_t const* filename)
 
 bool FileSystem::deleteFile(Path const& filename)
 {
-    return deleteFile(reinterpret_cast<wchar_t const*>(filename.data()));
+    wchar_t buffer[1024];
+    filename.convertTo(buffer, 1024);
+    return deleteFile(buffer);
 }
 
 bool FileSystem::pathExists(char const* path) const
@@ -343,7 +333,9 @@ bool FileSystem::pathExists(wchar_t const* path) const
 
 bool FileSystem::pathExists(Path const& path) const
 {
-    return pathExists(reinterpret_cast<wchar_t const*>(path.data()));
+    wchar_t buffer[1024];
+    path.convertTo(buffer, 1024);
+    return pathExists(buffer);
 }
 
 bool FileSystem::createPath(char const* path)
@@ -358,7 +350,9 @@ bool FileSystem::createPath(wchar_t const* path)
 
 bool FileSystem::createPath(Path const& path)
 {
-    return createPath(reinterpret_cast<wchar_t const*>(path.data()));
+    wchar_t buffer[1024];
+    path.convertTo(buffer, 1024);
+    return createPath(buffer);
 }
 
 bool FileSystem::deletePath(char const* path)
@@ -409,33 +403,31 @@ void FileSystem::findFiles(uint8_t const* path, uint8_t const* filter, containos
     ::FindClose(handle);
 }
 
-uint32_t FileSystem::watchFolder(char const* path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(char const* path, FileOperationCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path, recursive);
     uint32_t id = c::hash32(path);
     watch->m_id = id;
-    watch->m_callback.add(callback);
+    watch->m_callback.set(callback);
     m_watchList.insert(watch);
     return id;
 }
 
-uint32_t FileSystem::watchFolder(wchar_t const* path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(wchar_t const* path, FileOperationCB callback, bool recursive)
 {
     WatchInfo* watch = new WatchInfo(path, recursive);
     uint32_t id = c::hash32(reinterpret_cast<char const*>(path));
     watch->m_id = id;
-    watch->m_callback.add(callback);
+    watch->m_callback.set(callback);
     m_watchList.insert(watch);
     return id;
 }
 
-uint32_t FileSystem::watchFolder(Path const& path, FileModifiedCB callback, bool recursive)
+uint32_t FileSystem::watchFolder(Path const& path, FileOperationCB callback, bool recursive)
 {
-    path;
-    callback;
-    recursive;
-    fileos_todo("Implement FileSystem::watchFolder with path");
-    return 0;
+    wchar_t buffer[1024];
+    path.convertTo(buffer, 1024);
+    return watchFolder(buffer, callback, recursive);
 }
 
 void FileSystem::unwatchFolder(uint32_t id)
@@ -462,3 +454,5 @@ void FileSystem::waitForChanges(uint32_t timeoutMs)
 }
 
 } // end of fileos
+
+#endif
