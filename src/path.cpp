@@ -94,12 +94,12 @@ containos::Utf8Slice Path::filename() const
 containos::Utf8Slice Path::extension() const
 {
     containos::Utf8::const_iterator it = m_buffer.findLast('/');
+    if(it == m_buffer.end())
+        it = m_buffer.begin();
+    it = m_buffer.findLast(it, '.');
     if(it != m_buffer.end()) {
-        it = m_buffer.findLast(it, '.');
-        if(it != m_buffer.end()) {
-            ++it;
-            return m_buffer.slice(it, m_buffer.end());
-        }
+        ++it;
+        return m_buffer.slice(it, m_buffer.end());
     }
     return m_buffer.slice(it, it);
 }

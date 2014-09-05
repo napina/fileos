@@ -38,10 +38,8 @@ public:
 
     Path();
     Path(Path const& other);
-    explicit Path(char const* path);
-    explicit Path(char const* path, size_t length);
-    explicit Path(wchar_t const* path);
-    explicit Path(wchar_t const* path, size_t length);
+    //template<typename T> explicit Path(T const* path);
+    template<typename T> explicit Path(T const* path, size_t count);
     template<size_t Count> explicit Path(char const (&str)[Count]);
     template<size_t Count> explicit Path(wchar_t const (&str)[Count]);
     ~Path();
@@ -55,6 +53,8 @@ public:
     void append(Path const& path);
     template<typename T> void append(T const* path);
     template<typename T> void append(T const* path, size_t count);
+
+    template<typename T> void convertTo(T* buffer, size_t count) const;
 
     void trimFolders();
 

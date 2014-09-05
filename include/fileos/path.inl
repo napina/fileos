@@ -37,26 +37,16 @@ __forceinline Path::Path(Path const& other)
 {
 }
 
-__forceinline Path::Path(char const* path)
+/*template<typename T>
+__forceinline Path::Path(T const* path)
     : m_buffer(path)
 {
     fixSlashes();
-}
+}*/
 
-__forceinline Path::Path(char const* path, size_t length)
-    : m_buffer(path, length)
-{
-    fixSlashes();
-}
-
-__forceinline Path::Path(wchar_t const* path)
-    : m_buffer(path)
-{
-    fixSlashes();
-}
-
-__forceinline Path::Path(wchar_t const* path, size_t length)
-    : m_buffer(path, length)
+template<typename T>
+__forceinline Path::Path(T const* path, size_t count)
+    : m_buffer(path, count)
 {
     fixSlashes();
 }
@@ -106,6 +96,12 @@ __forceinline void Path::append(T const* str, size_t count)
 {
     m_buffer.append(str, count);
     fixSlashes();
+}
+
+template<typename T>
+__forceinline void Path::convertTo(T* buffer, size_t count) const
+{
+    m_buffer.convertTo(buffer, count);
 }
 
 __forceinline uint8_t const* Path::data() const
