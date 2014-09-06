@@ -100,10 +100,9 @@ FileOut* FileOut::open(wchar_t const* filename, bool append)
 
 FileOut* FileOut::open(Path const& filename, bool append)
 {
-    filename;
-    append;
-    fileos_todo("Implement FileOut::open with path");
-    return nullptr;
+    wchar_t buffer[1024];
+    filename.convertTo(buffer, 1024);
+    return open(buffer, append);
 }
 
 bool FileOut::setWriteTime(const FileTime& time)

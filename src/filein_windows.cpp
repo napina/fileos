@@ -121,9 +121,9 @@ FileIn* FileIn::open(wchar_t const* filename)
 
 FileIn* FileIn::open(Path const& filename)
 {
-    filename;
-    fileos_todo("Implement Filein::open with path");
-    return nullptr;
+    wchar_t buffer[1024];
+    filename.convertTo(buffer, 1024);
+    return open(buffer);
 }
 
 } // end of namespace
