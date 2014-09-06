@@ -27,74 +27,66 @@ IN THE SOFTWARE.
 
 #include "fileos/common.h"
 #include "fileos/resourcelist.h"
-#include "fileos/filesystem.h"
+//#include "fileos/filesystem.h"
 #include "fileos/path.h"
 #include "containos/hashmap.h"
-//#include "containos/ptr.h"
-//#include "reflectos.h"
-
-namespace reflectos {
-    struct TypeInfo;
-}
+#include "reflectos.h"
 
 namespace fileos {
 
 class Resource;
 class ResourceInfo;
+class FileSystem;
 
 class ResourceManager
 {
 public:
     ~ResourceManager();
-    ResourceManager();
+    ResourceManager(FileSystem* fileSystem);
 
     void update();
+    void collectGarbage();
 
-    void setRoot(char const* path);
-    void setRoot(wchar_t const* path);
-    void setRoot(Path const& path);
-    void enableHotloading(bool enable);
     bool hasPendingWork() const;
 
-    template<typename T> T* acquireResourceAs(uint8_t const* name);
+    // Prefer resource ids when accessing resources. 
     template<typename T> T* acquireResourceAs(resourceid_t id);
-    Resource* acquireResource(uint8_t const* name);
     Resource* acquireResource(resourceid_t id);
     bool unacquireResource(Resource* resource);
+    ResourceInfo* getResourceInfo(resourceid_t id);
 
-    template<typename T>
-    void registerResourceType();
-    void registerResourceType(const reflectos::TypeInfo* typeinfo);
+    // Use filenames only if you want dynamic behaviour
+    template<typename T> T* acquireResourceAs(Path const& filename);
+    Resource* acquireResource(Path const& filename);
 
-    template<typename T>
-    void registerResourceInfoType();
-    void registerResourceInfoType(const reflectos::TypeInfo* typeinfo);
-
-private:
-    void updateResourceInfos();
-
-    void onFileModified(uint32_t id, Path const& filename, FileOperation operation, FileTime const& timestamp);
+    template<typename Type,typename InfoType>
+    void registerType(char const* extension);
+    void registerType(char const* extension, reflectos::TypeInfo const* typeinfo, reflectos::TypeInfo const* infoTypeinfo);
 
 private:
+    Resource* createResource(ResourceInfo* info, resourceid_t id);
+
     typedef containos::HashMap<resourceid_t, Resource*> ResourceMap;
     typedef containos::HashMap<resourceid_t, ResourceInfo*> ResourceInfoMap;
     ResourceMap m_resources;
     ResourceInfoMap m_resourceInfos;
     
     ResourceList m_resourcesToLoad;
-    ResourceList m_resourcesInMemory;
+    ResourceList m_resourcesToFinish;
     ResourceList m_resourcesToUnload;
+    ResourceList m_resourcesInMemory;
+    ResourceList m_resourcesFailed;
 
-    FileSystem m_fileSystem;
-    Path m_rootPath;
+    FileSystem* m_fileSystem;
 
-    // TODO
-    uint32_t m_hotloadId;
-    bool m_hotload;
+    typedef containos::HashMap<typeid_t,reflectos::TypeInfo const*> IDToTypeInfo;
+    typedef containos::HashMap<uint32_t,reflectos::TypeInfo const*> HashToTypeInfo;
+    IDToTypeInfo m_resourceTypes;
+    HashToTypeInfo m_resourceInfoTypes;
 
-    typedef containos::HashMap<typeid_t,reflectos::TypeInfo const*> TypeInfoMap;
-    TypeInfoMap m_resourceTypes;
-    TypeInfoMap m_resourceInfoTypes;
+    REFLECT_CLASS(ResourceManager)
+        REFLECT_FUNCTION(hasPendingWork)
+    REFLECT_END()
 };
 
 } // end of fileos

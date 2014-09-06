@@ -42,6 +42,7 @@ public:
     void remove(Resource* resource);
     void clear();
 
+    Resource* operator[](size_t index) { return m_resources[index]; }
     bool pop(Resource*& resource);
 
     size_t size() const;

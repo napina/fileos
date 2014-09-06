@@ -47,6 +47,7 @@ void ResourceList::add(Resource* resource)
     }
 
     m_resources.insert(resource);
+    resource->m_list = this;
 }
 
 void ResourceList::remove(Resource* resource)

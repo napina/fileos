@@ -31,6 +31,8 @@ namespace fileos {
 ResourceInfo::ResourceInfo()
     : m_fileinfo()
     , m_resourceType(0)
+    , m_dependencies(nullptr)
+    , m_dependencyCount(0)
 {
 }
 

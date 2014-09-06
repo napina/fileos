@@ -37,20 +37,17 @@ class ResourceManager;
 class ResourceInfo
 {
 public:
-    typedef containos::List<ResourceInfo*> DependencyList;
-
     ResourceInfo();
 
     virtual ~ResourceInfo() {}
 
     Path const& filename() const;
     uint64_t fileSize() const;
-    FileTime const& createTime() const;
     FileTime const& lastWriteTime() const;
-    ResourceInfo const** dependencies() const;
+    ResourceInfo const* const* dependencies() const;
     size_t dependencyCount() const;
 
-private:
+protected:
     friend class ResourceManager;
 
     FileInfo m_fileinfo;

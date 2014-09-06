@@ -32,11 +32,6 @@ __forceinline Path const& ResourceInfo::filename() const
     return m_fileinfo.filename;
 }
 
-__forceinline FileTime const& ResourceInfo::createTime() const
-{
-    return m_fileinfo.createTime;
-}
-
 __forceinline FileTime const& ResourceInfo::lastWriteTime() const
 {
     return m_fileinfo.lastWriteTime;
@@ -47,7 +42,7 @@ __forceinline uint64_t ResourceInfo::fileSize() const
     return m_fileinfo.fileSize;
 }
 
-__forceinline ResourceInfo const** ResourceInfo::dependencies() const
+__forceinline ResourceInfo const* const* ResourceInfo::dependencies() const
 {
     return m_dependencies;
 }

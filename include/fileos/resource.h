@@ -26,8 +26,7 @@ IN THE SOFTWARE.
 #define fileos_resource_h
 
 #include "fileos/common.h"
-#include "fileos/streamin.h"
-#include "containos/event.h"
+//#include "fileos/streamin.h"
 #include "reflectos.h"
 
 namespace fileos {
@@ -35,13 +34,15 @@ namespace fileos {
 class ResourceManager;
 class ResourceList;
 class ResourceInfo;
+class StreamIn;
 
 enum ResourceState : uint32_t {
     resourcestate_notready = 0,
     resourcestate_pending,
     resourcestate_processing,
     resourcestate_ready,
-    resourcestate_freeing
+    resourcestate_freeing,
+    resourcestate_failed,
 };
 
 class Resource
@@ -67,9 +68,10 @@ public:
 protected:
     Resource();
 
-    friend class ResourceManager;
-
 private:
+    friend class ResourceManager;
+    friend class ResourceList;
+
     resourceid_t m_id;
     uint32_t m_state;
     uint32_t m_category;
@@ -82,6 +84,7 @@ private:
         REFLECT_FUNCTION(id)
         REFLECT_FUNCTION(state)
         REFLECT_FUNCTION(category)
+        REFLECT_FUNCTION(info)
     REFLECT_END()
 };
 
