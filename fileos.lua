@@ -9,6 +9,7 @@ project "fileos"
 		"src/*.cpp",
 	}
 	includedirs { "include", "../containos/include", "../reflectos/include" }
+	links { "containos" }
 	objdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
 	targetdir "lib"
