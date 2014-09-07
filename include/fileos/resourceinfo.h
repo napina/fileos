@@ -55,7 +55,7 @@ protected:
     ResourceInfo** m_dependencies;
     size_t m_dependencyCount;
 
-    REFLECT_BASE_CLASS(ResourceInfo)
+    REFLECT_BASE_CLASS(ResourceInfo, 1)
         REFLECT_FUNCTION(fileSize)
     REFLECT_END()
 };

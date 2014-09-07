@@ -80,7 +80,7 @@ private:
     ResourceInfo* m_info;
     ResourceList* m_list;
 
-    REFLECT_BASE_CLASS(Resource)
+    REFLECT_BASE_CLASS(Resource, 1)
         REFLECT_FUNCTION(id)
         REFLECT_FUNCTION(state)
         REFLECT_FUNCTION(category)

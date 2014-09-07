@@ -24,7 +24,7 @@ IN THE SOFTWARE.
 //#include "stdafx.h"
 #include "fileos/resourceinfo.h"
 
-REGISTER_CLASS(fileos::ResourceInfo, 1)
+REGISTER_CLASS(fileos::ResourceInfo)
 
 namespace fileos {
 

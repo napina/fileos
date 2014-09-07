@@ -84,7 +84,7 @@ private:
     IDToTypeInfo m_resourceTypes;
     HashToTypeInfo m_resourceInfoTypes;
 
-    REFLECT_CLASS(ResourceManager)
+    REFLECT_CLASS(ResourceManager, 1)
         REFLECT_FUNCTION(hasPendingWork)
     REFLECT_END()
 };
