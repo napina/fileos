@@ -21,8 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 
 =============================================================================*/
-//#include "stdafx.h"
-#define _CRT_SECURE_NO_WARNINGS
+#include "pch.h"
 #include "fileos/meta.h"
 #include "fileos/streamin.h"
 #include "string.h"

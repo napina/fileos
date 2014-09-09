@@ -10,12 +10,14 @@ project "fileos"
 	}
 	includedirs { "include", "../containos/include", "../reflectos/include" }
 	links { "containos" }
+	pchheader "pch.h"
+	pchsource "src/pch.cpp"
 	objdir( "build/" .. _ACTION )
 	location( "build/" .. _ACTION )
 	targetdir "lib"
 	targetname "%{prj.name}_%{cfg.platform}"
 
-	flags { "FatalWarnings", "NoBufferSecurityCheck", "NoEditAndContinue", "NoIncrementalLink", "NoPCH", "NoRTTI" }
+	flags { "FatalWarnings", "NoBufferSecurityCheck", "NoEditAndContinue", "NoIncrementalLink", "NoRTTI" }
 	warnings "Extra"
 
 	configuration "Debug"

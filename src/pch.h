@@ -21,36 +21,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 
 =============================================================================*/
-#include "pch.h"
-#include "fileos/resource.h"
-#include "containos/atomic.h"
 
-REGISTER_CLASS(fileos::Resource)
+#define _CRT_SECURE_NO_WARNINGS
 
-namespace fileos {
+#include "reflectos.h"
 
-Resource::Resource()
-    : m_id(0)
-    , m_state(resourcestate_notready)
-    , m_category(0)
-    , m_refCount(0)
-    , m_info(nullptr)
-    , m_list(nullptr)
-{
-}
+#include "containos/common.h"
+#include "containos/ptr.h"
+#include "containos/ref.h"
+namespace c = containos;
 
-Resource::~Resource()
-{
-}
-
-void Resource::addReference()
-{
-    containos::atomicInc32(m_refCount);
-}
-
-uint32_t Resource::removeReference()
-{
-    return containos::atomicDec32(m_refCount);
-}
-
-} // end of fileos
+#include "fileos/common.h"
