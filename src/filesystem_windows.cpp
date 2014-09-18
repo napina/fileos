@@ -286,21 +286,25 @@ bool FileSystem::queryInfo(Path const& filename, FileInfo& info) const
     return queryInfo(buffer, info);
 }
 
+bool FileSystem::copyFile(char const* filename, char const* target)
+{
+    BOOL ok = ::CopyFileExA(filename, target, NULL, this, FALSE, 0);
+    return ok == TRUE;
+}
+
 bool FileSystem::copyFile(wchar_t const* filename, wchar_t const* target)
 {
-    c::Ref<StreamIn> fileIn = openForRead(filename);
-    if(!fileIn.isValid())
-        return false;
+    BOOL ok = ::CopyFileExW(filename, target, NULL, this, FALSE, 0);
+    return ok == TRUE;
+}
 
-    if(!pathExists(target)) {
-        createPath(target);
-    }
-    c::Ref<StreamOut> fileOut = openForWrite(target, false);
-    if(fileOut.isValid())
-        return false;
-
-    fileos_todo("implement copy file");
-    return false;
+bool FileSystem::copyFile(Path const& filename, Path const& target)
+{
+    wchar_t srcBuffer[1024];
+    wchar_t dstBuffer[1024];
+    filename.convertTo(srcBuffer, 1024);
+    target.convertTo(dstBuffer, 1024);
+    return copyFile(srcBuffer, dstBuffer);
 }
 
 bool FileSystem::deleteFile(char const* filename)
