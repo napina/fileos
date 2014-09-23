@@ -43,7 +43,7 @@ public:
 
     Path const& filename() const;
     uint64_t fileSize() const;
-    FileTime const& lastWriteTime() const;
+    FileTime const& timeModified() const;
     ResourceInfo const* const* dependencies() const;
     size_t dependencyCount() const;
 

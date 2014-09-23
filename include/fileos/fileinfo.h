@@ -45,8 +45,8 @@ struct FileTime
 struct FileInfo
 {
     Path filename;
-    FileTime createTime;
-    FileTime lastWriteTime;
+    FileTime timeCreated;
+    FileTime timeModified;
     uint64_t fileSize;
     uint32_t isReadOnly : 1;
     uint32_t isHidden : 1;

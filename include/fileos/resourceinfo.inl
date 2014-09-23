@@ -32,9 +32,9 @@ __forceinline Path const& ResourceInfo::filename() const
     return m_fileinfo.filename;
 }
 
-__forceinline FileTime const& ResourceInfo::lastWriteTime() const
+__forceinline FileTime const& ResourceInfo::timeModified() const
 {
-    return m_fileinfo.lastWriteTime;
+    return m_fileinfo.timeModified;
 }
 
 __forceinline uint64_t ResourceInfo::fileSize() const
