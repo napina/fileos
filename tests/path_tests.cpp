@@ -129,40 +129,63 @@ TEST_SUITE(Path)
         f::Path parent = path.parent();
         EXPECT_EQUAL(parent, "nakki/makkara");
     }
-#if 0
+
     TEST(Catenate)
     {
-        f::Path path;
-        path.catenate("folder/folder2", "../file.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+        f::Path path(64);
+        path.append("folder/folder2");
+        path.append("../file.foo");
+        path.trimFolders();
+        EXPECT_EQUAL(path, "folder/file.foo");
     }
 
     TEST(CatenateWithSeparator)
     {
-        f::Path path;
-        path.catenate("folder/", "file.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+        f::Path path(64);
+        path.append("folder/");
+        path.append("file.foo");
+        EXPECT_EQUAL(path, "folder/file.foo");
     }
 
     TEST(CatenateFirstEmpty)
     {
-        f::Path path;
-        path.catenate("", "folder/file.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+        f::Path path(64);
+        path.append("");
+        path.append("folder/file.foo");
+        EXPECT_EQUAL(path, "folder/file.foo");
     }
 
     TEST(CatenateOnlySlashes)
     {
-        f::Path path;
-        path.catenate("/", "/folder/file.foo");
-        EXPECT_EQUAL(path.c_str(), "folder/file.foo");
+        f::Path path(64);
+        path.append("/");
+        path.append("/folder/file.foo");
+        EXPECT_EQUAL(path, "folder/file.foo");
     }
 
     TEST(CatenateOnlySlashesFolder)
     {
-        f::Path path;
-        path.catenate("/folder/", "/");
-        EXPECT_EQUAL(path.c_str(), "folder");
+        f::Path path(64);
+        path.append("/folder/");
+        path.append("/");
+        EXPECT_EQUAL(path, "folder");
     }
-#endif
+
+    TEST(Clone)
+    {
+        f::Path path("../file.foo");
+        f::Path path2;
+        path2.clone(path);
+        EXPECT_EQUAL(path, "../file.foo");
+        EXPECT_EQUAL(path2, "../file.foo");
+        EXPECT_NOTEQUAL(path.data(), path2.data());
+    }
+
+    TEST(ChangeExtension)
+    {
+        f::Path path("../folder/file.extension");
+        f::Path path2 = path.changeExtension("test");
+        EXPECT_EQUAL(path, "../folder/file.extension");
+        EXPECT_EQUAL(path2, "../folder/file.test");
+    }
 }

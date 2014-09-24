@@ -26,24 +26,6 @@ IN THE SOFTWARE.
 
 namespace fileos {
 
-void trimEndSlashes(uint16_t const*& str, size_t& length)
-{
-    if(length == 0)
-        return;
-
-    // check start
-    if((str[0] == '/') | (str[0] == '\\')) {
-        --length;
-        ++str;
-    }
-    if(length == 0)
-        return;
-
-    // check end
-    if((str[length - 1] == '/') | (str[length - 1] == '\\'))
-        --length;
-}
-
 Path::Path(containos::Utf8 const& buffer)
     : m_buffer(buffer)
 {
@@ -51,11 +33,6 @@ Path::Path(containos::Utf8 const& buffer)
 
 Path::~Path()
 {
-}
-
-void Path::reserve(size_t capasity)
-{
-    m_buffer.reserve(capasity);
 }
 
 Path Path::parent() const
@@ -104,11 +81,39 @@ containos::Utf8Slice Path::extension() const
     return m_buffer.slice(it, it);
 }
 
-Path Path::relativeTo(Path const& base) const
+Path Path::changeExtension(char const* newEtension) const
 {
-    base;
-    fileos_todo("Implement Path relativeTo");
-    return *this;
+    containos::Utf8Slice extension = this->extension();
+    const size_t strippedSize = m_buffer.dataCount() - extension.dataCount();
+    Path newPath(strippedSize + ::strlen(newEtension));
+    newPath.m_buffer.append(m_buffer.data(), strippedSize);
+    newPath.m_buffer.append(newEtension);
+    return newPath;
+}
+
+bool Path::isRelativeTo(Path const& base) const
+{
+    size_t count = base.m_buffer.dataCount();
+    if(count > m_buffer.dataCount())
+        return false;
+
+    uint8_t const* basePtr = base.data();
+    uint8_t const* ptr = m_buffer.data();
+    for(size_t i = 0; i < count; ++i) {
+        if(*basePtr == *ptr)
+            continue;
+        return false;
+    }
+    return true;
+}
+
+containos::Utf8Slice Path::relativeTo(Path const& base) const
+{
+    if(isRelativeTo(base)) {
+        Utf8::const_iterator start(m_buffer.data() + base.m_buffer.dataCount());
+        return m_buffer.slice(start, m_buffer.end());
+    }
+    return m_buffer.slice();
 }
 
 void Path::fixSlashes()
@@ -126,7 +131,8 @@ void Path::fixSlashes()
     while(slice.m_end[-1] == '/')
         --slice.m_end;
 
-    m_buffer.trim(slice);
+    if(slice.m_end >= slice.m_begin)
+        m_buffer.trim(slice);
 }
 
 void Path::trimFolders()

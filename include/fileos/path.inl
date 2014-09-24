@@ -32,6 +32,11 @@ __forceinline Path::Path()
 {
 }
 
+__forceinline Path::Path(size_t capasity)
+    : m_buffer(capasity)
+{
+}
+
 __forceinline Path::Path(Path const& other)
     : m_buffer(other.m_buffer)
 {
@@ -65,6 +70,16 @@ __forceinline Path::Path(wchar_t const (&str)[Count])
     fixSlashes();
 }
 
+__forceinline void Path::reserve(size_t capasity)
+{
+    m_buffer.reserve(capasity);
+}
+
+__forceinline void Path::clear()
+{
+    m_buffer.clear();
+}
+
 __forceinline void Path::set(Path const& other)
 {
     m_buffer = other.m_buffer;
@@ -84,9 +99,24 @@ __forceinline void Path::set(T const* path, size_t count)
     fixSlashes();
 }
 
+__forceinline void Path::append(Path const& other)
+{
+    m_buffer.append('/');
+    m_buffer.append(other.m_buffer);
+    fixSlashes();
+}
+
+__forceinline void Path::append(Utf8Slice const& slice)
+{
+    m_buffer.append('/');
+    m_buffer.append(slice);
+    fixSlashes();
+}
+
 template<typename T>
 __forceinline void Path::append(T const* str)
 {
+    m_buffer.append('/');
     m_buffer.append(str);
     fixSlashes();
 }
@@ -94,8 +124,14 @@ __forceinline void Path::append(T const* str)
 template<typename T>
 __forceinline void Path::append(T const* str, size_t count)
 {
+    m_buffer.append('/');
     m_buffer.append(str, count);
     fixSlashes();
+}
+
+__forceinline void Path::clone(Path const& from)
+{
+    m_buffer.clone(from.m_buffer);
 }
 
 template<typename T>

@@ -37,6 +37,7 @@ public:
     typedef containos::Utf8Slice Utf8Slice;
 
     Path();
+    Path(size_t capasity);
     Path(Path const& other);
     //template<typename T> explicit Path(T const* path);
     template<typename T> explicit Path(T const* path, size_t count);
@@ -45,17 +46,22 @@ public:
     ~Path();
 
     void reserve(size_t capasity);
+    void clear();
 
     void set(Path const& path);
     template<typename T> void set(T const* path);
     template<typename T> void set(T const* path, size_t count);
 
     void append(Path const& path);
+    void append(Utf8Slice const& slice);
     template<typename T> void append(T const* path);
     template<typename T> void append(T const* path, size_t count);
 
     template<typename T> void convertTo(T* buffer, size_t count) const;
 
+    Path changeExtension(char const* extension) const;
+    Utf8Slice relativeTo(Path const& base) const;
+    void clone(Path const& from);
     void trimFolders();
 
     Path parent() const;
@@ -64,12 +70,13 @@ public:
     Utf8Slice extension() const;
     uint8_t const* data() const;
     size_t length() const;
+    bool isRelativeTo(Path const& base) const;
 
     bool operator==(Path const& other) const;
     bool operator==(char const* str) const;
     bool operator==(wchar_t const* str) const;
 
-    Path relativeTo(Path const& base) const;
+    
 
 private:
     Path(Utf8 const& buffer);
