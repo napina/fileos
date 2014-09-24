@@ -27,6 +27,7 @@ IN THE SOFTWARE.
 
 #include "fileos/common.h"
 #include "fileos/fileinfo.h"
+#include "fileos/filetree.h"
 #include "fileos/path.h"
 #include "containos/delegate.h"
 #include "containos/list.h"
@@ -85,7 +86,7 @@ public:
     bool deletePath(Path const& path);
     //-------------------------------------------------------------------------
 
-    void findFiles(uint8_t const* path, uint8_t const* filter, containos::List<FileInfo>& foundFiles);
+    void findFiles(Path const& path, char const* filter, FileTree& foundFiles);
 //    FileIterator findDirectories(utf8_t const* path, utf8_t const* filter);
     //-------------------------------------------------------------------------
 

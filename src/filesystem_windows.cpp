@@ -252,8 +252,8 @@ bool FileSystem::queryInfo(char const* filename, FileInfo& info) const
         return false;
 
     info.filename.set(filename);
-    convertTime(fileInformation.ftCreationTime, info.createTime);
-    convertTime(fileInformation.ftLastWriteTime, info.lastWriteTime);
+    convertTime(fileInformation.ftCreationTime, info.timeCreated);
+    convertTime(fileInformation.ftLastWriteTime, info.timeModified);
     info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
     info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
     info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
@@ -269,8 +269,8 @@ bool FileSystem::queryInfo(wchar_t const* filename, FileInfo& info) const
         return false;
 
     info.filename.set(filename);
-    convertTime(fileInformation.ftCreationTime, info.createTime);
-    convertTime(fileInformation.ftLastWriteTime, info.lastWriteTime);
+    convertTime(fileInformation.ftCreationTime, info.timeCreated);
+    convertTime(fileInformation.ftLastWriteTime, info.timeModified);
     info.fileSize = (uint64_t(fileInformation.nFileSizeHigh) << 32) + fileInformation.nFileSizeLow;
     info.isReadOnly = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
     info.isHidden = (fileInformation.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
@@ -375,7 +375,7 @@ bool FileSystem::deletePath(Path const& path)
     return deletePath(reinterpret_cast<wchar_t const*>(path.data()));
 }
 
-void FileSystem::findFiles(uint8_t const* path, uint8_t const* filter, containos::List<FileInfo>& foundFiles)
+void FileSystem::findFiles(Path const& path, char const* filter, FileTree& foundFiles)
 {
     Path searchString;
     searchString.reserve(1024);
@@ -383,10 +383,29 @@ void FileSystem::findFiles(uint8_t const* path, uint8_t const* filter, containos
     searchString.append(filter);
 
     WIN32_FIND_DATA findData;
-    HANDLE handle = ::FindFirstFileA((const char*)searchString.data(), &findData);
-    if(handle == INVALID_HANDLE_VALUE)
+    HANDLE findHandle = ::FindFirstFileA((const char*)searchString.data(), &findData);
+    if(findHandle == INVALID_HANDLE_VALUE)
         return;
 
+    // First find directories
+    do
+    {
+        if(findData.cFileName[0] == '.')
+            continue;
+        if((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+            Path directoryPath;
+            directoryPath.reserve(1024);
+            directoryPath.append(path);
+            directoryPath.append((char const*)findData.cFileName);
+            findFiles(directoryPath, filter, foundFiles);
+        }
+    } while(::FindNextFileA(findHandle, &findData));
+    ::FindClose(findHandle);
+
+    // Then files in folder
+    FileInfo fileinfo;
+    fileinfo.filename.reserve(1024);
+    findHandle = ::FindFirstFileA((const char*)searchString.data(), &findData);
     do
     {
         if(findData.cFileName[0] == '.')
@@ -394,18 +413,19 @@ void FileSystem::findFiles(uint8_t const* path, uint8_t const* filter, containos
         if((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
             continue;
 
-        FileInfo& fileinfo = foundFiles.acquire();
-        fileinfo.filename.set(findData.cFileName);
-        convertTime(findData.ftCreationTime, fileinfo.createTime);
-        convertTime(findData.ftLastWriteTime, fileinfo.lastWriteTime);
+        fileinfo.filename.clear();
+        fileinfo.filename.append(path);
+        fileinfo.filename.append(findData.cFileName);
+        convertTime(findData.ftCreationTime, fileinfo.timeCreated);
+        convertTime(findData.ftLastWriteTime, fileinfo.timeModified);
         fileinfo.fileSize = (uint64_t(findData.nFileSizeHigh) << 32) + findData.nFileSizeLow;
         fileinfo.isReadOnly = (findData.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
         fileinfo.isHidden = (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0;
         fileinfo.isTemporary = (findData.dwFileAttributes & FILE_ATTRIBUTE_TEMPORARY) != 0;
         fileinfo.isDeleted = false;
-    } while(::FindNextFileA(handle, &findData));
-
-    ::FindClose(handle);
+        foundFiles.addFile(&fileinfo);
+    } while(::FindNextFileA(findHandle, &findData));
+    ::FindClose(findHandle);
 }
 
 uint32_t FileSystem::watchFolder(char const* path, FileOperationCB callback, bool recursive)
