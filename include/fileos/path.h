@@ -49,6 +49,7 @@ public:
     void clear();
 
     void set(Path const& path);
+    void set(Utf8Slice const& slice);
     template<typename T> void set(T const* path);
     template<typename T> void set(T const* path, size_t count);
 
@@ -73,10 +74,9 @@ public:
     bool isRelativeTo(Path const& base) const;
 
     bool operator==(Path const& other) const;
+    bool operator==(containos::Utf8Slice const& slice) const;
     bool operator==(char const* str) const;
     bool operator==(wchar_t const* str) const;
-
-    
 
 private:
     Path(Utf8 const& buffer);

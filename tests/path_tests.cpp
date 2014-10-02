@@ -197,4 +197,22 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path2, "../folder/file.test");
         EXPECT_EQUAL(path2.length(), 19);
     }
+
+    TEST(IsRelative)
+    {
+        f::Path path("folder/folder2/folder3/file.extension");
+        EXPECT_TRUE(path.isRelativeTo(f::Path("folder")));
+        EXPECT_TRUE(path.isRelativeTo(f::Path("folder/folder2")));
+        EXPECT_TRUE(path.isRelativeTo(f::Path("folder/folder2/folder3")));
+        EXPECT_FALSE(path.isRelativeTo(f::Path("folder/fol")));
+        EXPECT_FALSE(path.isRelativeTo(f::Path("folder/")));
+    }
+
+    TEST(RelativeTo)
+    {
+        f::Path path("folder/folder2/folder3/file.extension");
+        EXPECT_EQUAL(path.relativeTo(f::Path("folder")), "folder2/folder3/file.extension");
+        EXPECT_EQUAL(path.relativeTo(f::Path("folder/folder2")), "folder3/file.extension");
+        EXPECT_EQUAL(path.relativeTo(f::Path("folder/folder2/folder3")), "file.extension");
+    }
 }

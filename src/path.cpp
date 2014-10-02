@@ -110,7 +110,7 @@ bool Path::isRelativeTo(Path const& base) const
 containos::Utf8Slice Path::relativeTo(Path const& base) const
 {
     if(isRelativeTo(base)) {
-        Utf8::const_iterator start(m_buffer.data() + base.m_buffer.dataCount());
+        Utf8::const_iterator start(m_buffer.data() + base.m_buffer.dataCount() + 1);
         return m_buffer.slice(start, m_buffer.end());
     }
     return m_buffer.slice();

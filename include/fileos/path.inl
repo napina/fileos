@@ -85,6 +85,25 @@ __forceinline void Path::set(Path const& other)
     m_buffer = other.m_buffer;
 }
 
+__forceinline void Path::set(containos::Utf8Slice const& slice)
+{
+    m_buffer.set(slice);
+    fixSlashes();
+}
+
+template<>
+__forceinline void Path::set(Path const* other)
+{
+    m_buffer = other->m_buffer;
+}
+
+template<>
+__forceinline void Path::set(containos::Utf8Slice const* slice)
+{
+    m_buffer.set(*slice);
+    fixSlashes();
+}
+
 template<typename T>
 __forceinline void Path::set(T const* path)
 {
@@ -110,6 +129,22 @@ __forceinline void Path::append(Utf8Slice const& slice)
 {
     m_buffer.append('/');
     m_buffer.append(slice);
+    fixSlashes();
+}
+
+template<>
+__forceinline void Path::append(Path const* other)
+{
+    m_buffer.append('/');
+    m_buffer.append(other->m_buffer);
+    fixSlashes();
+}
+
+template<>
+__forceinline void Path::append(Utf8Slice const* slice)
+{
+    m_buffer.append('/');
+    m_buffer.append(*slice);
     fixSlashes();
 }
 
@@ -153,6 +188,11 @@ __forceinline size_t Path::length() const
 __forceinline bool Path::operator==(Path const& other) const
 {
     return m_buffer == other.m_buffer;
+}
+
+__forceinline bool Path::operator==(containos::Utf8Slice const& slice) const
+{
+    return m_buffer == slice;
 }
 
 __forceinline bool Path::operator==(char const* str) const
