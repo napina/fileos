@@ -23,7 +23,6 @@ IN THE SOFTWARE.
 =============================================================================*/
 #include "pch.h"
 #include "fileos/resourcemanager.h"
-#include "fileos/resourcestorage.h"
 #include "fileos/resourceinfo.h"
 #include "fileos/resource.h"
 #include "fileos/filesystem.h"
