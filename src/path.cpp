@@ -81,6 +81,12 @@ containos::Utf8Slice Path::extension() const
     return m_buffer.slice(it, it);
 }
 
+void Path::addExtension(char const* extension)
+{
+    m_buffer.append('.');
+    m_buffer.append(extension);
+}
+
 Path Path::changeExtension(char const* newEtension) const
 {
     containos::Utf8Slice extension = this->extension();

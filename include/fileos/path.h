@@ -60,6 +60,7 @@ public:
 
     template<typename T> void convertTo(T* buffer, size_t count) const;
 
+    void addExtension(char const* extension);
     Path changeExtension(char const* extension) const;
     Utf8Slice relativeTo(Path const& base) const;
     void clone(Path const& from);
