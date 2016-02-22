@@ -48,7 +48,7 @@ __forceinline T* ResourceManager::acquireResourceAs(resourceid_t id)
     return static_cast<T*>(resource);
 }
 
-template<typename typename Type,typename InfoType>
+template<typename Type,typename InfoType>
 __forceinline void ResourceManager::registerType(char const* extension)
 {
     registerType(extension, reflectos::type_inspect<Type>::type(), reflectos::type_inspect<InfoType>::type());

@@ -23,6 +23,7 @@ IN THE SOFTWARE.
 =============================================================================*/
 #include "pch.h"
 #include "fileos/path.h"
+#include <string.h>
 
 namespace fileos {
 

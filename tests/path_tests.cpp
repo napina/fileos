@@ -121,7 +121,7 @@ TEST_SUITE(Path)
     {
         f::Path path("/folder\\test.foobar\\");
         EXPECT_EQUAL(path, "folder/test.foobar");
-        EXPECT_EQUAL(path.length(), 18);
+        EXPECT_EQUAL(path.length(), 18u);
     }
 
     TEST(Parent)
@@ -129,7 +129,7 @@ TEST_SUITE(Path)
         f::Path path("nakki/makkara/test.foobar");
         f::Path parent = path.parent();
         EXPECT_EQUAL(parent, "nakki/makkara");
-        EXPECT_EQUAL(parent.length(), 13);
+        EXPECT_EQUAL(parent.length(), 13u);
     }
 
     TEST(Catenate)
@@ -139,7 +139,7 @@ TEST_SUITE(Path)
         path.append("../file.foo");
         path.trimFolders();
         EXPECT_EQUAL(path, "folder/file.foo");
-        EXPECT_EQUAL(path.length(), 15);
+        EXPECT_EQUAL(path.length(), 15u);
     }
 
     TEST(CatenateWithSeparator)
@@ -148,7 +148,7 @@ TEST_SUITE(Path)
         path.append("folder/");
         path.append("file.foo");
         EXPECT_EQUAL(path, "folder/file.foo");
-        EXPECT_EQUAL(path.length(), 15);
+        EXPECT_EQUAL(path.length(), 15u);
     }
 
     TEST(CatenateFirstEmpty)
@@ -157,7 +157,7 @@ TEST_SUITE(Path)
         path.append("");
         path.append("folder/file.foo");
         EXPECT_EQUAL(path, "folder/file.foo");
-        EXPECT_EQUAL(path.length(), 15);
+        EXPECT_EQUAL(path.length(), 15u);
     }
 
     TEST(CatenateOnlySlashes)
@@ -166,7 +166,7 @@ TEST_SUITE(Path)
         path.append("/");
         path.append("/folder/file.foo");
         EXPECT_EQUAL(path, "folder/file.foo");
-        EXPECT_EQUAL(path.length(), 15);
+        EXPECT_EQUAL(path.length(), 15u);
     }
 
     TEST(CatenateOnlySlashesFolder)
@@ -175,7 +175,7 @@ TEST_SUITE(Path)
         path.append("/folder/");
         path.append("/");
         EXPECT_EQUAL(path, "folder");
-        EXPECT_EQUAL(path.length(), 6);
+        EXPECT_EQUAL(path.length(), 6u);
     }
 
     TEST(Clone)
@@ -186,7 +186,7 @@ TEST_SUITE(Path)
         EXPECT_EQUAL(path, "../file.foo");
         EXPECT_EQUAL(path2, "../file.foo");
         EXPECT_NOTEQUAL(path.data(), path2.data());
-        EXPECT_EQUAL(path2.length(), 11);
+        EXPECT_EQUAL(path2.length(), 11u);
     }
 
     TEST(ChangeExtension)
@@ -195,7 +195,7 @@ TEST_SUITE(Path)
         f::Path path2 = path.changeExtension("test");
         EXPECT_EQUAL(path, "../folder/file.extension");
         EXPECT_EQUAL(path2, "../folder/file.test");
-        EXPECT_EQUAL(path2.length(), 19);
+        EXPECT_EQUAL(path2.length(), 19u);
     }
 
     TEST(IsRelative)
