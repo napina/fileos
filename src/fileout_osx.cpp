@@ -46,7 +46,7 @@ FileOut::FileOut(void* handle)
 
 uint32_t FileOut::write(void const* srcBuffer, uint32_t size)
 {
-    uint32_t writeSize = ::fwrite(srcBuffer, size, 1, (FILE*)m_handle);
+    uint32_t writeSize = ::fwrite(srcBuffer, 1, size, (FILE*)m_handle);
     m_position += writeSize;
     m_size += writeSize;
     return writeSize;

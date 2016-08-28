@@ -46,7 +46,7 @@ FileIn::FileIn(void* handle)
 
 uint32_t FileIn::read(void* destBuffer, uint32_t size)
 {
-    uint32_t readSize = ::fread(destBuffer, size, 1, (FILE*)m_handle);
+    uint32_t readSize = ::fread(destBuffer, 1, size, (FILE*)m_handle);
     m_position += readSize;
     return readSize;
 }
