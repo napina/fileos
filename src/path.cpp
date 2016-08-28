@@ -131,8 +131,8 @@ void Path::fixSlashes()
     Utf8Slice slice = m_buffer.slice();
 
     // trim begin slashes
-    while(*slice.m_begin == '/')
-        ++slice.m_begin;
+    /*while(*slice.m_begin == '/')
+        ++slice.m_begin;*/
     
     // trim end slashes
     while(slice.m_end[-1] == '/')
