@@ -23,5 +23,5 @@ IN THE SOFTWARE.
 =============================================================================*/
 #include "pch.h"
 
-REGISTER_TYPE(fileos::uint32_t);
-REGISTER_TYPE(float);
+//REGISTER_TYPE(fileos::uint32_t);
+//REGISTER_TYPE(float);

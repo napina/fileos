@@ -24,7 +24,7 @@ IN THE SOFTWARE.
 #include "pch.h"
 #include "fileos/resourceinfo.h"
 
-REGISTER_CLASS(fileos::ResourceInfo)
+//REGISTER_CLASS(fileos::ResourceInfo)
 
 namespace fileos {
 

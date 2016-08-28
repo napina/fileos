@@ -45,6 +45,9 @@ IN THE SOFTWARE.
 #if defined(_MSC_VER)
 #   define fileos_lineinfo          __FILE__ "(" fileos_tostring(__LINE__) ")"
 #   define fileos_todo(msg)         __pragma(message(fileos_lineinfo ": TODO " msg))
+#elif defined(__clang__)
+#   define fileos_lineinfo          __FILE__ ":" fileos_tostring(__LINE__)
+#   define fileos_todo(msg)
 #elif defined(__GNUC__)
 #   define fileos_lineinfo          __FILE__ ":" fileos_tostring(__LINE__)
 #   define fileos_todo(msg)         __Pragma(message("TODO " msg))

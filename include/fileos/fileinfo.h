@@ -56,10 +56,8 @@ struct FileInfo
 
 } // end of fileos
 
-namespace containos {
 template<> struct allow_memcpy<fileos::FileInfo> {
     static const bool allowed = false;
 };
-}
 
 #endif

@@ -75,14 +75,12 @@ FileInfo const* FileTree::findFile(Path const& path) const
     return nullptr;
 }
 
-void FileTree::addFolder(Path const& path)
+void FileTree::addFolder(Path const& /*path*/)
 {
-    path;
 }
 
-void FileTree::removeFolder(Path const& path)
+void FileTree::removeFolder(Path const& /*path*/)
 {
-    path;
 }
 
 } // end of fileos

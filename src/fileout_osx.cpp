@@ -22,17 +22,16 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #include "pch.h"
-#if defined(FILEOS_WINDOWS)
+#if defined(FILEOS_MACOSX)
 #include "fileos/fileout.h"
 #include "fileos/fileinfo.h"
-#include <windows.h>
+#include <stdio.h>
 
 namespace fileos {
 
 FileOut::~FileOut()
 {
-    ::FlushFileBuffers(m_handle);
-    ::CloseHandle(m_handle);
+    ::fclose((FILE*)m_handle);
 }
 
 FileOut::FileOut(void* handle)
@@ -41,16 +40,13 @@ FileOut::FileOut(void* handle)
     , m_position(0)
     , m_size(0)
 {
-    LONG offsetHigh = 0;
-    DWORD offsetLow = ::SetFilePointer(m_handle, 0, &offsetHigh, FILE_CURRENT);
-    m_position = offsetLow | (int64_t(offsetHigh) << 32);
+    m_position = ::ftell((FILE*)m_handle);
     m_size = m_position;
 }
 
 uint32_t FileOut::write(void const* srcBuffer, uint32_t size)
 {
-    DWORD writeSize = 0;
-    ::WriteFile(m_handle, srcBuffer, (DWORD)size, &writeSize, NULL);
+    uint32_t writeSize = ::fwrite(srcBuffer, size, 1, (FILE*)m_handle);
     m_position += writeSize;
     m_size += writeSize;
     return writeSize;
@@ -58,7 +54,7 @@ uint32_t FileOut::write(void const* srcBuffer, uint32_t size)
 
 void FileOut::flush()
 {
-    ::FlushFileBuffers(m_handle);
+    ::fflush((FILE*)m_handle);
 }
 
 uint64_t FileOut::position() const
@@ -73,12 +69,8 @@ uint64_t FileOut::size() const
 
 FileOut* FileOut::open(char const* filename, bool append)
 {
-    DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
-    DWORD dwShareMode = 0;//FILE_SHARE_READ;
-    DWORD dwCreationDisposition = CREATE_ALWAYS;
-    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-    HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-    if(handle == INVALID_HANDLE_VALUE) {
+    FILE* handle = ::fopen(filename, append ? "a" : "w");
+    if(handle == 0) {
         //DWORD error = ::GetLastError();
         return nullptr;
     }
@@ -87,16 +79,7 @@ FileOut* FileOut::open(char const* filename, bool append)
 
 FileOut* FileOut::open(wchar_t const* filename, bool append)
 {
-    DWORD dwDesiredAccess = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | (append ? FILE_APPEND_DATA : 0);
-    DWORD dwShareMode = 0;//FILE_SHARE_READ;
-    DWORD dwCreationDisposition = CREATE_ALWAYS;
-    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
-    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-    if(handle == INVALID_HANDLE_VALUE) {
-        //DWORD error = ::GetLastError();
-        return nullptr;
-    }
-    return new FileOut(handle);
+    return open((char const*)filename, append);
 }
 
 FileOut* FileOut::open(Path const& filename, bool append)
@@ -108,19 +91,8 @@ FileOut* FileOut::open(Path const& filename, bool append)
 
 bool FileOut::setWriteTime(const FileTime& time)
 {
-    FILETIME fileTime;
-    SYSTEMTIME systemTime;
-    systemTime.wYear = time.year;
-    systemTime.wMonth = time.month;
-    systemTime.wDayOfWeek = time.dayOfWeek;
-    systemTime.wDay = time.day;
-    systemTime.wHour = time.hour;
-    systemTime.wMinute = time.minute;
-    systemTime.wSecond = time.second;
-    systemTime.wMilliseconds = time.milliseconds;
-    ::SystemTimeToFileTime(&systemTime, &fileTime);
-    BOOL ok = ::SetFileTime(m_handle, nullptr, nullptr, &fileTime);
-    return ok == TRUE;
+    // TODO
+    return false;
 }
 
 } // end of namespace

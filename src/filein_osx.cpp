@@ -22,15 +22,15 @@ IN THE SOFTWARE.
 
 =============================================================================*/
 #include "pch.h"
-#if defined(FILEOS_WINDOWS)
+#if defined(FILEOS_MACOSX)
 #include "fileos/filein.h"
-#include <windows.h>
+#include <stdio.h>
 
 namespace fileos {
 
 FileIn::~FileIn()
 {
-    ::CloseHandle(m_handle);
+    ::fclose((FILE*)m_handle);
 }
 
 FileIn::FileIn(void* handle)
@@ -39,31 +39,26 @@ FileIn::FileIn(void* handle)
     , m_position(0)
     , m_size(0)
 {
-    FILE_STANDARD_INFO info;
-    ::GetFileInformationByHandleEx(m_handle, FileStandardInfo, &info, sizeof(FILE_STANDARD_INFO));
-    m_size = info.EndOfFile.QuadPart;
+    ::fseek((FILE*)m_handle, 0, SEEK_END);
+    m_size = ::ftell((FILE*)m_handle);
+    ::fseek((FILE*)m_handle, 0, SEEK_SET);
 }
 
 uint32_t FileIn::read(void* destBuffer, uint32_t size)
 {
-    DWORD readSize = 0;
-    ::ReadFile(m_handle, destBuffer, (DWORD)size, &readSize, NULL);
+    uint32_t readSize = ::fread(destBuffer, size, 1, (FILE*)m_handle);
     m_position += readSize;
     return readSize;
 }
 
 uint64_t FileIn::seek(SeekFrom from, int64_t offset)
 {
-    LARGE_INTEGER loffset;
-    LARGE_INTEGER lposition;
-    loffset.QuadPart = offset;
-    lposition.QuadPart = offset;
     switch(from) {
-        case seek_from_start:   ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_BEGIN);      break;
-        case seek_from_current: ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_CURRENT);    break;
-        case seek_from_end:     ::SetFilePointerEx(m_handle, loffset, &lposition, FILE_END);        break;
+        case seek_from_start:   ::fseek((FILE*)m_handle, offset, SEEK_SET);    break;
+        case seek_from_current: ::fseek((FILE*)m_handle, offset, SEEK_CUR);    break;
+        case seek_from_end:     ::fseek((FILE*)m_handle, offset, SEEK_END);    break;
     }
-    m_position = lposition.QuadPart;
+    m_position = ftell((FILE*)m_handle);
     return m_position;
 }
 
@@ -94,13 +89,8 @@ bool FileIn::isInMemory() const
 
 FileIn* FileIn::open(char const* filename)
 {
-    DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
-    DWORD dwShareMode = FILE_SHARE_READ;
-    DWORD dwCreationDisposition = OPEN_EXISTING;
-    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY;// | FILE_FLAG_NO_BUFFERING;
-    HANDLE handle = ::CreateFileA(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-    if(handle == INVALID_HANDLE_VALUE) {
-        //DWORD error = ::GetLastError();
+    FILE* handle = fopen(filename, "rb");
+    if(handle == 0) {
         return nullptr;
     }
     return new FileIn(handle);
@@ -108,16 +98,7 @@ FileIn* FileIn::open(char const* filename)
 
 FileIn* FileIn::open(wchar_t const* filename)
 {
-    DWORD dwDesiredAccess = FILE_READ_DATA | FILE_READ_ATTRIBUTES;
-    DWORD dwShareMode = FILE_SHARE_READ;
-    DWORD dwCreationDisposition = OPEN_EXISTING;
-    DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_READONLY;// | FILE_FLAG_NO_BUFFERING;
-    HANDLE handle = ::CreateFileW(filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-    if(handle == INVALID_HANDLE_VALUE) {
-        //DWORD error = ::GetLastError();
-        return nullptr;
-    }
-    return new FileIn(handle);
+    return open((char const*)filename);
 }
 
 FileIn* FileIn::open(Path const& filename)

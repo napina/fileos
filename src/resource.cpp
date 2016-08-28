@@ -25,7 +25,7 @@ IN THE SOFTWARE.
 #include "fileos/resource.h"
 #include "containos/atomic.h"
 
-REGISTER_CLASS(fileos::Resource)
+//REGISTER_CLASS(fileos::Resource)
 
 namespace fileos {
 
