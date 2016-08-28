@@ -120,8 +120,8 @@ TEST_SUITE(Path)
     TEST(AutoFixPath)
     {
         f::Path path("/folder\\test.foobar\\");
-        EXPECT_EQUAL(path, "folder/test.foobar");
-        EXPECT_EQUAL(path.length(), 18u);
+        EXPECT_EQUAL(path, "/folder/test.foobar");
+        EXPECT_EQUAL(path.length(), 19u);
     }
 
     TEST(Parent)
@@ -165,14 +165,14 @@ TEST_SUITE(Path)
         f::Path path(64);
         path.append("/");
         path.append("/folder/file.foo");
-        EXPECT_EQUAL(path, "folder/file.foo");
-        EXPECT_EQUAL(path.length(), 15u);
+        EXPECT_EQUAL(path, "/folder/file.foo");
+        EXPECT_EQUAL(path.length(), 16u);
     }
 
     TEST(CatenateOnlySlashesFolder)
     {
         f::Path path(64);
-        path.append("/folder/");
+        path.append("folder/");
         path.append("/");
         EXPECT_EQUAL(path, "folder");
         EXPECT_EQUAL(path.length(), 6u);

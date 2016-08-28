@@ -382,7 +382,7 @@ void FileSystem::findFiles(Path const& path, char const* filter, FileTree& found
     searchString.append(path);
     searchString.append(filter);
 
-    WIN32_FIND_DATA findData;
+    WIN32_FIND_DATAA findData;
     HANDLE findHandle = ::FindFirstFileA((const char*)searchString.data(), &findData);
     if(findHandle == INVALID_HANDLE_VALUE)
         return;

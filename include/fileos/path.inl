@@ -120,14 +120,14 @@ __forceinline void Path::set(T const* path, size_t count)
 
 __forceinline void Path::append(Path const& other)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(other.m_buffer);
     fixSlashes();
 }
 
 __forceinline void Path::append(Utf8Slice const& slice)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(slice);
     fixSlashes();
 }
@@ -135,7 +135,7 @@ __forceinline void Path::append(Utf8Slice const& slice)
 template<>
 __forceinline void Path::append(Path const* other)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(other->m_buffer);
     fixSlashes();
 }
@@ -143,7 +143,7 @@ __forceinline void Path::append(Path const* other)
 template<>
 __forceinline void Path::append(Utf8Slice const* slice)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(*slice);
     fixSlashes();
 }
@@ -151,7 +151,7 @@ __forceinline void Path::append(Utf8Slice const* slice)
 template<typename T>
 __forceinline void Path::append(T const* str)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(str);
     fixSlashes();
 }
@@ -159,7 +159,7 @@ __forceinline void Path::append(T const* str)
 template<typename T>
 __forceinline void Path::append(T const* str, size_t count)
 {
-    m_buffer.append('/');
+    if(m_buffer.length() > 0) m_buffer.append('/');
     m_buffer.append(str, count);
     fixSlashes();
 }
