@@ -62,6 +62,7 @@ public:
 
     void addExtension(char const* extension);
     Path changeExtension(char const* extension) const;
+	Path removeExtension() const;
     Utf8Slice relativeTo(Path const& base) const;
     void clone(Path const& from);
     void trimFolders();

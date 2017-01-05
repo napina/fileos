@@ -98,6 +98,18 @@ Path Path::changeExtension(char const* newEtension) const
     return newPath;
 }
 
+Path Path::removeExtension() const
+{
+    containos::Utf8::const_iterator it = m_buffer.findLast('/');
+    if(it == m_buffer.end())
+        it = m_buffer.begin();
+    it = m_buffer.findLast(it, '.');
+    if(it != m_buffer.end()) {
+        return Path(data(), (ptrdiff_t)it.ptr() - (ptrdiff_t)data());
+    }
+    return *this;
+}
+
 bool Path::isRelativeTo(Path const& base) const
 {
     size_t count = base.m_buffer.dataCount();
